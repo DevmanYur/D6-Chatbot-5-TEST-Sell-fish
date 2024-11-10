@@ -55,16 +55,23 @@ def handle_users_reply(update, context):
     db = get_database_connection()
     if update.message:
         user_reply = update.message.text
+        print(1, user_reply)
         chat_id = update.message.chat_id
+        print(1, chat_id)
     elif update.callback_query:
         user_reply = update.callback_query.data
+        print(2, user_reply)
         chat_id = update.callback_query.message.chat_id
+        print(2, chat_id)
     else:
+        print(3)
         return
     if user_reply == '/start':
         user_state = 'START'
     else:
+
         user_state = db.get(chat_id).decode("utf-8")
+        print(4, user_state)
 
     states_functions = {
         'START': start,
@@ -95,19 +102,19 @@ def get_database_connection():
     return _database
 
 
-if __name__ == '__main__':
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-    )
 
-    load_dotenv()
-    
-    token = os.getenv("TELEGRAM_TOKEN")
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
 
-    updater = Updater(token)
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(CallbackQueryHandler(handle_users_reply))
-    dispatcher.add_handler(MessageHandler(Filters.text, handle_users_reply))
-    dispatcher.add_handler(CommandHandler('start', handle_users_reply))
-    updater.start_polling()
-    updater.idle()
+load_dotenv()
+
+token = os.getenv("TELEGRAM_TOKEN")
+
+updater = Updater(token)
+dispatcher = updater.dispatcher
+dispatcher.add_handler(CallbackQueryHandler(handle_users_reply))
+dispatcher.add_handler(MessageHandler(Filters.text, handle_users_reply))
+dispatcher.add_handler(CommandHandler('start', handle_users_reply))
+updater.start_polling()
+updater.idle()
