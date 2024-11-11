@@ -8,6 +8,7 @@ Basic example for a bot that uses inline keyboards. For an in-depth explanation,
 """
 import logging
 import os
+from pprint import pprint
 
 from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -37,12 +38,15 @@ def start(update: Update, context: CallbackContext) -> None:
 def button(update: Update, context: CallbackContext) -> None:
     """Parses the CallbackQuery and updates the message text."""
     query = update.callback_query
+    print(query)
 
     # CallbackQueries need to be answered, even if no notification to the user is needed
     # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     query.answer()
+    print('query.answer()', query.answer())
 
     query.edit_message_text(text=f"Selected option: {query.data}")
+    print('query.data', query.data)
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
