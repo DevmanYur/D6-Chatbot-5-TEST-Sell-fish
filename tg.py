@@ -7,7 +7,7 @@ import os
 import logging
 import redis
 from dotenv import load_dotenv
-from telegram import ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
@@ -16,12 +16,22 @@ _database = None
 
 
 def start(update, context):
-    custom_keyboard = [['text ECHO', 'text ECHO2'],
-                       ['text ECHO3']]
-    reply_markup = ReplyKeyboardMarkup(custom_keyboard)
+    keyboard = [
+        [
+            InlineKeyboardButton("Option 1", callback_data='1'),
+            InlineKeyboardButton("Option 2", callback_data='2'),
+        ],
+        [InlineKeyboardButton("Option 3", callback_data='3')],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+
+    # custom_keyboard = [['text ECHO', 'text ECHO2'],
+    #                    ['text ECHO3']]
+    # reply_markup = ReplyKeyboardMarkup(custom_keyboard)
 
     update.message.reply_text(text='Привет!', reply_markup=reply_markup)
-    return "ECHO2"
+
 
 
 def echo1(update, context):
