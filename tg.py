@@ -7,36 +7,34 @@ import os
 import logging
 import redis
 from dotenv import load_dotenv
+from telegram import ReplyKeyboardMarkup
 
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
 _database = None
 
-logger = logging.getLogger(__name__)
-
 
 def start(update, context):
-    """
-    Хэндлер для состояния START.
+    custom_keyboard = [['text ECHO', 'text ECHO2'],
+                       ['text ECHO3']]
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard)
 
-    Бот отвечает пользователю фразой "Привет!" и переводит его в состояние ECHO.
-    Теперь в ответ на его команды будет запускаеться хэндлер echo.
-    """
-    update.message.reply_text(text='Привет!')
-    return "ECHO"
+    update.message.reply_text(text='Привет!', reply_markup=reply_markup)
+    return "ECHO2"
 
 
-def echo(update, context):
-    """
-    Хэндлер для состояния ECHO.
+def echo1(update, context):
+    update.message.reply_text("text ECHO1")
+    return "ECHO1"
 
-    Бот отвечает пользователю тем же, что пользователь ему написал.
-    Оставляет пользователя в состоянии ECHO.
-    """
-    users_reply = update.message.text
-    update.message.reply_text(users_reply)
-    return "ECHO"
+def echo2(update, context):
+    update.message.reply_text("text ECHO2")
+    return "ECHO2"
+
+def echo3(update, context):
+    update.message.reply_text("text ECHO3")
+    return "ECHO3"
 
 
 def handle_users_reply(update, context):
@@ -55,27 +53,22 @@ def handle_users_reply(update, context):
     db = get_database_connection()
     if update.message:
         user_reply = update.message.text
-        print(1, user_reply)
         chat_id = update.message.chat_id
-        print(1, chat_id)
     elif update.callback_query:
         user_reply = update.callback_query.data
-        print(2, user_reply)
         chat_id = update.callback_query.message.chat_id
-        print(2, chat_id)
     else:
-        print(3)
         return
     if user_reply == '/start':
         user_state = 'START'
     else:
-
         user_state = db.get(chat_id).decode("utf-8")
-        print(4, user_state)
 
     states_functions = {
-        'START': start,
-        'ECHO': echo
+        "START": start,
+        "ECHO1": echo1,
+        "ECHO2": echo2,
+        "ECHO3": echo3
     }
     state_handler = states_functions[user_state]
     # Если вы вдруг не заметите, что python-telegram-bot перехватывает ошибки.
@@ -94,27 +87,20 @@ def get_database_connection():
     """
     global _database
     if _database is None:
-        load_dotenv()
-        database_password = os.getenv("DATABASE_PASSWORD_REDIS")
-        database_host = os.getenv("DATABASE_HOST_REDIS")
-        database_port = os.getenv("DATABASE_PORT_REDIS")
+        database_password = os.getenv("DATABASE_PASSWORD")
+        database_host = os.getenv("DATABASE_HOST")
+        database_port = os.getenv("DATABASE_PORT")
         _database = redis.Redis(host=database_host, port=database_port, password=database_password)
     return _database
 
 
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
-
-load_dotenv()
-
-token = os.getenv("TELEGRAM_TOKEN")
-
-updater = Updater(token)
-dispatcher = updater.dispatcher
-dispatcher.add_handler(CallbackQueryHandler(handle_users_reply))
-dispatcher.add_handler(MessageHandler(Filters.text, handle_users_reply))
-dispatcher.add_handler(CommandHandler('start', handle_users_reply))
-updater.start_polling()
-updater.idle()
+if __name__ == '__main__':
+    load_dotenv()
+    token = os.getenv("TELEGRAM_TOKEN")
+    updater = Updater(token)
+    dispatcher = updater.dispatcher
+    dispatcher.add_handler(CallbackQueryHandler(handle_users_reply))
+    dispatcher.add_handler(MessageHandler(Filters.text, handle_users_reply))
+    dispatcher.add_handler(CommandHandler('start', handle_users_reply))
+    updater.start_polling()
+    updater.idle()
