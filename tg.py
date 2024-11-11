@@ -23,6 +23,7 @@ def start(update, context):
         ],
         [InlineKeyboardButton("Option 3", callback_data='3')],
     ]
+
     reply_markup = InlineKeyboardMarkup(keyboard)
 
 
@@ -48,6 +49,8 @@ def echo3(update, context):
 
 
 def handle_users_reply(update, context):
+
+
     """
     Функция, которая запускается при любом сообщении от пользователя и решает как его обработать.
     Эта функция запускается в ответ на эти действия пользователя:
@@ -60,13 +63,21 @@ def handle_users_reply(update, context):
     поэтому по этой фразе выставляется стартовое состояние.
     Если пользователь захочет начать общение с ботом заново, он также может воспользоваться этой командой.
     """
+
     db = get_database_connection()
+
+
     if update.message:
         user_reply = update.message.text
         chat_id = update.message.chat_id
     elif update.callback_query:
         user_reply = update.callback_query.data
         chat_id = update.callback_query.message.chat_id
+
+        query = update.callback_query
+        query.answer()
+        query.edit_message_text(text=f"Selected option: {query.data}")
+
     else:
         return
     if user_reply == '/start':
