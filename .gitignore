@@ -160,4 +160,3 @@ cython_debug/
 .idea/
 application_default_credentials.json
 credentials.json
-quiz-questions/
