@@ -28,19 +28,12 @@ def start(update: Update, context: CallbackContext) -> None:
     response = requests.get(f'http://localhost:1337/api/products',
                             headers=headers)
     products = response.json()
-
     keyboard= []
-
-
-
     for product in products['data']:
-        keyboard_0=[]
-        pprint(product['title'])
-        pprint(product['id'])
-        keyboard_0.append(InlineKeyboardButton(product['title'], callback_data=product['id']))
-        keyboard.append(keyboard_0)
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['id']))
+        keyboard.append(keyboard_group)
 
-    pprint(keyboard)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
