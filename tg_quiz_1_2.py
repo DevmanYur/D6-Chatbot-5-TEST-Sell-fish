@@ -58,9 +58,12 @@ def handle_users_reply(update, context):
     if update.message:
         user_reply = update.message.text
         chat_id = update.message.chat_id
+        print('user_reply', user_reply)
     elif update.callback_query:
         user_reply = update.callback_query.data
         chat_id = update.callback_query.message.chat_id
+        print('user_reply', user_reply)
+
     else:
         return
     if user_reply == '/start':
@@ -78,6 +81,7 @@ def handle_users_reply(update, context):
     # Этот фрагмент можно переписать.
     try:
         next_state = state_handler(update, context)
+        print('next_state', next_state)
         db.set(chat_id, next_state)
     except Exception as err:
         print(err)
