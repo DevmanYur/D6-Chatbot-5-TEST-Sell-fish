@@ -1,6 +1,7 @@
 import os
 import redis
 from dotenv import load_dotenv
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
@@ -8,21 +9,28 @@ _database = None
 
 
 def start(update, context):
-    update.message.reply_text(text='Привет!')
+    keyboard = [[InlineKeyboardButton("Option 1", callback_data='1')],[InlineKeyboardButton("Option 3", callback_data='3')],]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(text='Привет!', reply_markup=reply_markup)
+    return "BUTTON"
+
+
+
+
+def button(update, context) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    query.answer()
+    query.edit_message_text(text=f"Selected option: {query.data}")
     return "HANDLE_MENU"
 
 
 def  handle_menu(update, context):
-    """
-    Хэндлер для состояния ECHO.
-
-    Бот отвечает пользователю тем же, что пользователь ему написал.
-    Оставляет пользователя в состоянии ECHO.
-    """
     users_reply = update.message.text
     update.message.reply_text(users_reply)
-    return "ECHO"
-
+    return 'START'
 
 def handle_users_reply(update, context):
     """
@@ -53,6 +61,7 @@ def handle_users_reply(update, context):
 
     states_functions = {
         'START': start,
+        'BUTTON': button,
         'HANDLE_MENU': handle_menu
     }
     state_handler = states_functions[user_state]
