@@ -48,6 +48,8 @@ def handle_users_reply(update, context):
         chat_id = update.callback_query.message.chat_id
         print(update.callback_query.data)
         button(update, context)
+
+
     else:
         return
 
@@ -79,17 +81,25 @@ def get_database_connection():
     return _database
 
 def button(update, context) -> None:
-    """Parses the CallbackQuery and updates the message text."""
     query = update.callback_query
-    print(query)
-
-    # CallbackQueries need to be answered, even if no notification to the user is needed
-    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     query.answer()
-    print('query.answer()', query.answer())
+    username = context.user_data.get('username')
+    if query.data == '1':
+        query.message.reply_text(f'Введите текстзаявки:')
+        # context.user_data[‘action’] = ‘writing_request’
 
-    query.edit_message_text(text=f"Selected option: {query.data}")
-    print('query.data', query.data)
+    #
+    # """Parses the CallbackQuery and updates the message text."""
+    # query = update.callback_query
+    # print(query)
+    #
+    # # CallbackQueries need to be answered, even if no notification to the user is needed
+    # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    # query.answer()
+    # print('query.answer()', query.answer())
+    #
+    # query.edit_message_text(text=f"Selected option: {query.data}")
+    # print('query.data', query.data)
 
 if __name__ == '__main__':
     load_dotenv()
