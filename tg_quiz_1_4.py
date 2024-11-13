@@ -7,6 +7,7 @@ import os
 import logging
 import redis
 from dotenv import load_dotenv
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
@@ -15,88 +16,60 @@ _database = None
 
 
 def start(update, context):
-    """
-    Хэндлер для состояния START.
 
-    Бот отвечает пользователю фразой "Привет!" и переводит его в состояние ECHO.
-    Теперь в ответ на его команды будет запускаеться хэндлер echo.
-    """
-    update.message.reply_text(text='Привет!')
+
+    keyboard = [
+        [
+            InlineKeyboardButton("Option 1", callback_data='1')
+
+        ],
+        [
+            InlineKeyboardButton("Option 3", callback_data='3')
+        ],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(text='Привет!', reply_markup=reply_markup)
     return "ECHO"
 
 
 def echo(update, context):
-    """
-    Хэндлер для состояния ECHO.
-
-    Бот отвечает пользователю тем же, что пользователь ему написал.
-    Оставляет пользователя в состоянии ECHO.
-    """
     users_reply = update.message.text
     update.message.reply_text(users_reply)
     return "ECHO"
 
 
 def handle_users_reply(update, context):
-    """
-    Функция, которая запускается при любом сообщении от пользователя и решает как его обработать.
-    Эта функция запускается в ответ на эти действия пользователя:
-        * Нажатие на inline-кнопку в боте
-        * Отправка сообщения боту
-        * Отправка команды боту
-    Она получает стейт пользователя из базы данных и запускает соответствующую функцию-обработчик (хэндлер).
-    Функция-обработчик возвращает следующее состояние, которое записывается в базу данных.
-    Если пользователь только начал пользоваться ботом, Telegram форсит его написать "/start",
-    поэтому по этой фразе выставляется стартовое состояние.
-    Если пользователь захочет начать общение с ботом заново, он также может воспользоваться этой командой.
-    """
     db = get_database_connection()
-
-
-    # Функция получает chat_id пользователя и фразу, которую он сказал:
     if update.message:
         user_reply = update.message.text
         chat_id = update.message.chat_id
     elif update.callback_query:
         user_reply = update.callback_query.data
         chat_id = update.callback_query.message.chat_id
+        print(update.callback_query.data)
+        button(update, context)
     else:
         return
 
-
-    # Затем, если пользователь впервые, она выставляет ему стейт START:
     if user_reply == '/start':
         user_state = 'START'
-
-    # Если же пользователь уже работал с ботом, его стейт хранится в базе данных:
     else:
         user_state = db.get(chat_id).decode("utf-8")
 
-
-    # Далее идёт словарь с состояниями и их обработчиками. Состояние START обрабатывает функция start,
-    # а состояние ECHO обрабатывает функция echo:
     states_functions = {
         'START': start,
         'ECHO': echo
     }
-
-    # Далее получаем функцию, которая обрабатывает состояние пользователя:
     state_handler = states_functions[user_state]
 
     try:
-        # Запускаем её, получаем в ответ следующее состояние:
         next_state = state_handler(update, context)
-
-        # И записываем за пользователем следующее состояние:
         db.set(chat_id, next_state)
     except Exception as err:
         print(err)
 
 
 def get_database_connection():
-    """
-    Возвращает конекшн с базой данных Redis, либо создаёт новый, если он ещё не создан.
-    """
     global _database
     if _database is None:
         database_password = os.getenv("DATABASE_PASSWORD")
@@ -105,6 +78,18 @@ def get_database_connection():
         _database = redis.Redis(host=database_host, port=database_port, password=database_password)
     return _database
 
+def button(update, context) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+    print(query)
+
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    query.answer()
+    print('query.answer()', query.answer())
+
+    query.edit_message_text(text=f"Selected option: {query.data}")
+    print('query.data', query.data)
 
 if __name__ == '__main__':
     load_dotenv()

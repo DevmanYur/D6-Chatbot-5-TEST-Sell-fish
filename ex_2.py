@@ -2,18 +2,17 @@
 # pylint: disable=C0116,W0613
 # This program is dedicated to the public domain under the CC0 license.
 
-"""
-Простая встроенная клавиатура, но с несколькими обработчиками запросов обратного вызова.
+"""Simple inline keyboard bot with multiple CallbackQueryHandlers.
 
-Этот бот использует класс Updater для управления ботом.
-Сначала несколько функций обратного вызова определяются как обработчик запросов обратного вызова. Затем эти функции
-передаются диспетчеру и регистрируются в соответствующих местах.
-Затем бот запускается и работает до тех пор, пока мы не нажмем Ctrl-C в командной строке.
-Использование:
-Пример бота, использующего встроенную клавиатуру с несколькими обработчиками запросов обратного вызова, расположенными в виде
-Ведущий беседы.
-Отправить / начать, чтобы начать разговор.
-Нажмите Ctrl-C в командной строке, чтобы остановить бота.
+This Bot uses the Updater class to handle the bot.
+First, a few callback functions are defined as callback query handler. Then, those functions are
+passed to the Dispatcher and registered at their respective places.
+Then, the bot is started and runs until we press Ctrl-C on the command line.
+Usage:
+Example of a bot that uses inline keyboard that has multiple CallbackQueryHandlers arranged in a
+ConversationHandler.
+Send /start to initiate the conversation.
+Press Ctrl-C on the command line to stop the bot.
 """
 import logging
 import os
@@ -39,7 +38,6 @@ logger = logging.getLogger(__name__)
 FIRST, SECOND = range(2)
 # Callback data
 ONE, TWO, THREE, FOUR = range(4)
-
 
 
 def start(update: Update, context: CallbackContext) -> int:
@@ -167,7 +165,6 @@ def end(update: Update, context: CallbackContext) -> int:
 def main() -> None:
     """Run the bot."""
     # Create the Updater and pass it your bot's token.
-
     load_dotenv()
     TOKEN = os.getenv("TELEGRAM_TOKEN")
     updater = Updater(TOKEN)
