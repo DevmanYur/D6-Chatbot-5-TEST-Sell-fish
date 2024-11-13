@@ -11,15 +11,21 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
-
+from PIL import Image
 _database = None
 
 
 logger = logging.getLogger(__name__)
 
 def start(update, context):
+    photo = Image.open("test11.png")
     chat_id = update.message.chat_id
-    update.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
+    update.send_photo(chat_id=chat_id, photo=photo)
+
+    photo = open('test11.png', 'rb')
+    update.send_photo(chat_id=chat_id, photo=photo, caption='message.text')
+    update.message(chat_id=chat_id, document=open('test11.png', 'rb'))
+    context.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
 
 
     keyboard = [[
