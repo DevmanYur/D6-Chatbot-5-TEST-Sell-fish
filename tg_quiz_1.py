@@ -51,6 +51,9 @@ def handle_users_reply(update, context):
     Если пользователь захочет начать общение с ботом заново, он также может воспользоваться этой командой.
     """
     db = get_database_connection()
+
+
+    # Функция получает chat_id пользователя и фразу, которую он сказал:
     if update.message:
         user_reply = update.message.text
         chat_id = update.message.chat_id
@@ -59,21 +62,32 @@ def handle_users_reply(update, context):
         chat_id = update.callback_query.message.chat_id
     else:
         return
+
+
+    # Затем, если пользователь впервые, она выставляет ему стейт START:
     if user_reply == '/start':
         user_state = 'START'
+
+    # Если же пользователь уже работал с ботом, его стейт хранится в базе данных:
     else:
         user_state = db.get(chat_id).decode("utf-8")
 
+
+    # Далее идёт словарь с состояниями и их обработчиками. Состояние START обрабатывает функция start,
+    # а состояние ECHO обрабатывает функция echo:
     states_functions = {
         'START': start,
         'ECHO': echo
     }
+
+    # Далее получаем функцию, которая обрабатывает состояние пользователя:
     state_handler = states_functions[user_state]
-    # Если вы вдруг не заметите, что python-telegram-bot перехватывает ошибки.
-    # Оставляю этот try...except, чтобы код не падал молча.
-    # Этот фрагмент можно переписать.
+
     try:
+        # Запускаем её, получаем в ответ следующее состояние:
         next_state = state_handler(update, context)
+
+        # И записываем за пользователем следующее состояние:
         db.set(chat_id, next_state)
     except Exception as err:
         print(err)
