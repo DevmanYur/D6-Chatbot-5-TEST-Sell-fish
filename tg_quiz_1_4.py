@@ -18,6 +18,10 @@ _database = None
 logger = logging.getLogger(__name__)
 
 def start(update, context):
+    chat_id = update.message.chat_id
+    update.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
+
+
     keyboard = [[
         InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
         InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
@@ -31,13 +35,16 @@ def handle_menu(update, context):
 
 
     query = update.callback_query
+    chat_id = update.message.chat_id
 
     if query.data == 'Состояние 1':
         query.answer(text=f'Вы нажали кнопку 1')
+        query.send_document(chat_id=chat_id, document=open('test1.jpeg', 'rb'))
         query.message.reply_text(text=f'Вы нажали кнопку 1')
 
     if query.data == 'Состояние 2':
         query.answer(text=f'Вы нажали кнопку 2')
+        query.send_document(chat_id=chat_id, document=open('test2.jpeg', 'rb'))
         query.message.reply_text(text=f'Вы нажали кнопку 2')
 
     return 'START'
