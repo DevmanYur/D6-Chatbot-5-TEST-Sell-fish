@@ -15,6 +15,8 @@ from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 _database = None
 
 
+logger = logging.getLogger(__name__)
+
 def start(update, context):
     keyboard = [[
         InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
@@ -26,8 +28,18 @@ def start(update, context):
 
 
 def handle_menu(update, context):
-    users_reply = update.message.text
-    update.message.reply_text(users_reply)
+
+
+    query = update.callback_query
+
+    if query.data == 'Состояние 1':
+        query.answer(text=f'Вы нажали кнопку 1')
+        query.message.reply_text(text=f'Вы нажали кнопку 1')
+
+    if query.data == 'Состояние 2':
+        query.answer(text=f'Вы нажали кнопку 2')
+        query.message.reply_text(text=f'Вы нажали кнопку 2')
+
     return 'START'
 
 
@@ -39,10 +51,6 @@ def handle_users_reply(update, context):
     elif update.callback_query:
         user_reply = update.callback_query.data
         chat_id = update.callback_query.message.chat_id
-        print(update.callback_query.data)
-        button(update, context)
-
-
     else:
         return
 
@@ -53,7 +61,7 @@ def handle_users_reply(update, context):
 
     states_functions = {
         'START': start,
-        'ECHO': echo
+        'HANDLE_MENU': handle_menu
     }
     state_handler = states_functions[user_state]
 
@@ -116,6 +124,9 @@ def button(update, context) -> None:
 #         botTimeWeb.answer_callback_query(function_call.id)
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    )
     load_dotenv()
     token = os.getenv("TELEGRAM_TOKEN")
     updater = Updater(token)
