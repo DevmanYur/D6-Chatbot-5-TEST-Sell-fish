@@ -74,7 +74,7 @@ def start2(update, context) :
     # context.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
     # update.message.send_document
     #
-    context.send_document(document=open('test11.png', 'rb'))
+    # context.send_document(document=open('test11.png', 'rb'))
     keyboard = [[
         InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
         InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
@@ -92,11 +92,15 @@ def handle_menu(update, context) :
 def button2(update, context):
     #
     query = update.callback_query
-    query.answer()
+
     # query.edit_message_text(text=f"Выбрано кнопка: {query.data}")
 
     if query.data == 'Состояние 1':
-        query.message.reply_text(text=f'Введите текстзаявки', document=open('test11.png', 'rb'))
+        query.answer()
+        # query.message.reply_text(text=f'Введите текстзаявки')
+        context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'), caption=f'Введите текстзаявки')
+
+        # context.bot.send_document(chat_id=update.message.chat_id, document=open('test11.png', 'rb'))
 
 
 
