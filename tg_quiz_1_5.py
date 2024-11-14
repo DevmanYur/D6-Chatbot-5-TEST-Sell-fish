@@ -13,17 +13,6 @@ logger = logging.getLogger(__name__)
 _database = None
 
 
-def start(update, context):
-    update.message.reply_text(text='Привет!')
-    return "START2"
-
-
-def echo(update, context):
-    users_reply = update.message.text
-    update.message.reply_text('Эхо эхо')
-    return "ECHO"
-
-
 def handle_users_reply(update, context):
     database_1 = get_database_connection()
     if update.message:
@@ -39,11 +28,7 @@ def handle_users_reply(update, context):
     else:
         user_state = database_1.get(chat_id).decode("utf-8")
     states_functions = {
-        'START': start2, #############################
-        'ECHO': echo,
-        'START2': start2,
-        'BUTTON2': button2,
-        'HELP_COMMAND2': help_command2,
+        'START': start,
         'HANDLE_MENU': handle_menu,
 
     }
@@ -66,59 +51,34 @@ def get_database_connection():
 
 
 
-def start2(update, context) :
+def start(update, context) :
     chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=update.message.chat_id, text="Hello")
-    context.bot.send_document(chat_id=update.message.chat_id, document=open('test11.png', 'rb'))
-    # context.send_document
-    # context.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
-    # update.message.send_document
-    #
-    # context.send_document(document=open('test11.png', 'rb'))
+    context.bot.send_message(chat_id=chat_id, text="Hello")
     keyboard = [[
         InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
         InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Выбери кнопку:', reply_markup=reply_markup)
-    return "BUTTON2"
+    return "HANDLE_MENU"
+
 
 def handle_menu(update, context) :
     query = update.callback_query
-    query.answer("Wow")
 
+    data = query.data
+    if data == 'Состояние 1':
+        keyboard = [[
+            InlineKeyboardButton("Назад", callback_data='Состояние Назад')
+        ]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
+        query.answer(data)
+        context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
+                                  caption=f'Введите текстзаявки', reply_markup=reply_markup)
+        # start(update, context)
+        return 'START'
 
-def button2(update, context):
-    #
-    query = update.callback_query
-
-    # query.edit_message_text(text=f"Выбрано кнопка: {query.data}")
-
-    if query.data == 'Состояние 1':
-        query.answer()
-        # query.message.reply_text(text=f'Введите текстзаявки')
-        context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'), caption=f'Введите текстзаявки')
-
-        # context.bot.send_document(chat_id=update.message.chat_id, document=open('test11.png', 'rb'))
-
-
-
-
-
-    # echo(update, context)
-
-    # user_reply = update.callback_query.data
-    # chat_id = update.callback_query.message.chat_id
-
-    # update.answer_callback_query(callback_query.id)
-
-
-    return "HELP_COMMAND2"
-
-def help_command2(update, context) -> None:
-    update.message.reply_text("Use /start to test this bot.")
-    return "START"
 
 
 if __name__ == '__main__':
