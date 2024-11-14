@@ -18,14 +18,14 @@ _database = None
 logger = logging.getLogger(__name__)
 
 def start(update, context):
-    photo = Image.open("test11.png")
-    chat_id = update.message.chat_id
-    update.send_photo(chat_id=chat_id, photo=photo)
-
-    photo = open('test11.png', 'rb')
-    update.send_photo(chat_id=chat_id, photo=photo, caption='message.text')
-    update.message(chat_id=chat_id, document=open('test11.png', 'rb'))
-    context.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
+    # photo = Image.open("test11.png")
+    # chat_id = update.message.chat_id
+    # update.send_photo(chat_id=chat_id, photo=photo)
+    #
+    # photo = open('test11.png', 'rb')
+    # update.send_photo(chat_id=chat_id, photo=photo, caption='message.text')
+    # update.message(chat_id=chat_id, document=open('test11.png', 'rb'))
+    # context.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
 
 
     keyboard = [[
@@ -45,12 +45,12 @@ def handle_menu(update, context):
 
     if query.data == 'Состояние 1':
         query.answer(text=f'Вы нажали кнопку 1')
-        query.send_document(chat_id=chat_id, document=open('test1.jpeg', 'rb'))
+        # query.send_document(chat_id=chat_id, document=open('test1.jpeg', 'rb'))
         query.message.reply_text(text=f'Вы нажали кнопку 1')
 
     if query.data == 'Состояние 2':
         query.answer(text=f'Вы нажали кнопку 2')
-        query.send_document(chat_id=chat_id, document=open('test2.jpeg', 'rb'))
+        # query.send_document(chat_id=chat_id, document=open('test2.jpeg', 'rb'))
         query.message.reply_text(text=f'Вы нажали кнопку 2')
 
     return 'START'
@@ -74,7 +74,7 @@ def handle_users_reply(update, context):
 
     states_functions = {
         'START': start,
-        'HANDLE_MENU': handle_menu
+        'HANDLE_MENU': button
     }
     state_handler = states_functions[user_state]
 
