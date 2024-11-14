@@ -86,6 +86,18 @@ def button2(update, context):
     query = update.callback_query
     query.answer()
     query.edit_message_text(text=f"Выбрано кнопка: {query.data}")
+
+    keyboard = [
+        [InlineKeyboardButton("Btc", callback_data='Состояние 3')],
+        [InlineKeyboardButton("Paypal", callback_data='Состояние 4')],
+        [InlineKeyboardButton("Back", callback_data='Состояние 5')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(
+        text="Price for {**CallbackQuery.text**} { is {price_live/**CallbackQuery.text**)} USD or the equivalent in crypto-currencies. Please, choose your payment method. (And to be perfectly honest, we prefer crypto...)",
+        reply_markup=reply_markup
+    )
+
     # echo(update, context)
 
     # user_reply = update.callback_query.data
