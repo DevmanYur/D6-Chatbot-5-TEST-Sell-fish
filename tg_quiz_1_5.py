@@ -30,6 +30,7 @@ def handle_users_reply(update, context):
     states_functions = {
         'START': start,
         'HANDLE_MENU': handle_menu,
+        'HANDLE_DESCRIPTION': handle_description
 
     }
     state_handler = states_functions[user_state]
@@ -78,6 +79,25 @@ def handle_menu(update, context) :
                                   caption=f'Введите текстзаявки', reply_markup=reply_markup)
         # start(update, context)
         return 'START'
+
+
+def handle_description(update, context) :
+    query = update.callback_query
+
+    data = query.data
+    if data == 'Состояние 1':
+        keyboard = [[
+            InlineKeyboardButton("Назад", callback_data='Состояние Назад')
+        ]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        query.answer(data)
+        context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
+                                  caption=f'Введите текстзаявки', reply_markup=reply_markup)
+        # start(update, context)
+        return 'START'
+
+
 
 
 
