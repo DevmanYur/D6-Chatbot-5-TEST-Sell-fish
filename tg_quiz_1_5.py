@@ -69,17 +69,17 @@ def start2(update, context) :
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
-    return "START2"
+    return "BUTTON2"
 
 def button2(update, context):
     query = update.callback_query
     query.answer()
     query.edit_message_text(text=f"Selected option: {query.data}")
-    return "BUTTON2"
+    return "HELP_COMMAND2"
 
 def help_command2(update, context) -> None:
     update.message.reply_text("Use /start to test this bot.")
-    return "HELP_COMMAND2"
+    return "START"
 
 
 if __name__ == '__main__':
