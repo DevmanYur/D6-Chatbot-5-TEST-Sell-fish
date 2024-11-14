@@ -67,6 +67,14 @@ def get_database_connection():
 
 
 def start2(update, context) :
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=update.message.chat_id, text="Hello")
+    context.bot.send_document(chat_id=update.message.chat_id, document=open('test11.png', 'rb'))
+    # context.send_document
+    # context.send_document(chat_id=chat_id, document=open('test11.png', 'rb'))
+    # update.message.send_document
+    #
+    context.send_document(document=open('test11.png', 'rb'))
     keyboard = [[
         InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
         InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
@@ -88,7 +96,11 @@ def button2(update, context):
     # query.edit_message_text(text=f"Выбрано кнопка: {query.data}")
 
     if query.data == 'Состояние 1':
-        query.message.reply_text(text=f'Введите текстзаявки')
+        query.message.reply_text(text=f'Введите текстзаявки', document=open('test11.png', 'rb'))
+
+
+
+
 
     # echo(update, context)
 
