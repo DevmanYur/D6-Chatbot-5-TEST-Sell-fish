@@ -54,30 +54,26 @@ def get_database_connection():
 
 def start(update, context) :
     chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=chat_id, text="Hello")
+    context.bot.send_message(chat_id=chat_id, text="Привет!")
     keyboard = [[
-        InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
-        InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
+        InlineKeyboardButton("Рыба 1", callback_data='Нажата кнопка Рыба 1'),
+        InlineKeyboardButton("Рыба 2", callback_data='Нажата кнопка Рыба 2')
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Выбери кнопку:', reply_markup=reply_markup)
+    update.message.reply_text('Меню:', reply_markup=reply_markup)
     return 'HANDLE_DESCRIPTION'
 
 
 def handle_menu(update, context) :
     query = update.callback_query
     data = query.data
-    if data == 'Состояние Назад':
+    if data == 'Нажата кнопка Назад':
         keyboard = [[
-            InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
-            InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
+            InlineKeyboardButton("Рыба 1", callback_data='Нажата кнопка Рыба 1'),
+            InlineKeyboardButton("Рыба 2", callback_data='Нажата кнопка Рыба 2')
         ]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-
-        query.answer(data)
-        context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
-                                  caption=f'Меню', reply_markup=reply_markup)
-        # start(update, context)
+        query.message.reply_text('Меню:', reply_markup=reply_markup)
         return "HANDLE_MENU"
 
 
@@ -96,15 +92,15 @@ def handle_menu(update, context) :
 def handle_description(update, context) :
     query = update.callback_query
     data = query.data
-    if data == 'Состояние 1':
+    if data == 'Нажата кнопка Рыба 1':
         keyboard = [[
-            InlineKeyboardButton("Назад", callback_data='Состояние Назад')
+            InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')
         ]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         query.answer(data)
         context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
-                                  caption=f'Введите текстзаявки', reply_markup=reply_markup)
+                                  caption=f'Описание рыбы1 на мноооооооооооооооооооооооооооого строк', reply_markup=reply_markup)
         # start(update, context)
         return "HANDLE_MENU"
 
