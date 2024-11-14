@@ -7,6 +7,9 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
+logger = logging.getLogger(__name__)
+
+
 _database = None
 
 
@@ -17,7 +20,7 @@ def start(update, context):
 
 def echo(update, context):
     users_reply = update.message.text
-    update.message.reply_text(users_reply)
+    update.message.reply_text('Эхо эхо')
     return "ECHO"
 
 
@@ -36,11 +39,12 @@ def handle_users_reply(update, context):
     else:
         user_state = database_1.get(chat_id).decode("utf-8")
     states_functions = {
-        'START': start,
+        'START': start2, #############################
         'ECHO': echo,
         'START2': start2,
         'BUTTON2': button2,
         'HELP_COMMAND2': help_command2,
+        'HANDLE_MENU': handle_menu,
 
     }
     state_handler = states_functions[user_state]
@@ -68,13 +72,28 @@ def start2(update, context) :
         InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+    update.message.reply_text('Выбери кнопку:', reply_markup=reply_markup)
     return "BUTTON2"
 
+def handle_menu(update, context) :
+    query = update.callback_query
+    query.answer("Wow")
+
+
+
 def button2(update, context):
+    #
     query = update.callback_query
     query.answer()
-    query.edit_message_text(text=f"Selected option: {query.data}")
+    query.edit_message_text(text=f"Выбрано кнопка: {query.data}")
+    # echo(update, context)
+
+    # user_reply = update.callback_query.data
+    # chat_id = update.callback_query.message.chat_id
+
+    # update.answer_callback_query(callback_query.id)
+
+
     return "HELP_COMMAND2"
 
 def help_command2(update, context) -> None:
@@ -83,6 +102,11 @@ def help_command2(update, context) -> None:
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    )
+
+
     load_dotenv()
     token = os.getenv("TELEGRAM_TOKEN")
     updater = Updater(token)

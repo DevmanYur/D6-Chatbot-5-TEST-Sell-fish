@@ -14,9 +14,7 @@ from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,6 +57,9 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    )
     """Run the bot."""
     # Create the Updater and pass it your bot's token.
 
