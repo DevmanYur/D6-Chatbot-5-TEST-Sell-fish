@@ -9,7 +9,6 @@ from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
 logger = logging.getLogger(__name__)
 
-
 _database = None
 
 
@@ -51,8 +50,7 @@ def get_database_connection():
     return _database
 
 
-
-def start(update, context) :
+def start(update, context):
     chat_id = update.message.chat_id
     # context.bot.send_message(chat_id=chat_id, text="Привет!")
     keyboard = [[
@@ -64,9 +62,10 @@ def start(update, context) :
     return 'HANDLE_DESCRIPTION'
 
 
-def handle_menu(update, context) :
+def handle_menu(update, context):
     query = update.callback_query
-    
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
     data = query.data
     if data == 'Нажата кнопка Назад':
         keyboard = [[
@@ -76,8 +75,6 @@ def handle_menu(update, context) :
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.message.reply_text('Меню:', reply_markup=reply_markup)
         return 'HANDLE_DESCRIPTION'
-
-
 
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text="Hello")
@@ -90,17 +87,13 @@ def handle_menu(update, context) :
     return 'START'
 
 
-def handle_description(update, context) :
-
-
-
+def handle_description(update, context):
     query = update.callback_query
 
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
     data = query.data
     if data == 'Нажата кнопка Рыба 1':
-
         keyboard = [[
             InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')
         ]]
@@ -109,14 +102,13 @@ def handle_description(update, context) :
         query.answer(data)
 
         context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
-                                  caption=f'Описание рыбы1 на мноооооооооооооооооооооооооооого строк', reply_markup=reply_markup)
-
+                                  caption=f'Описание рыбы1 на мноооооооооооооооооооооооооооого строк',
+                                  reply_markup=reply_markup)
 
         # start(update, context)
         return "HANDLE_MENU"
 
     if data == 'Нажата кнопка Рыба 2':
-
         keyboard = [[
             InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')
         ]]
@@ -125,17 +117,17 @@ def handle_description(update, context) :
         query.answer(data)
 
         context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test22.png', 'rb'),
-                                  caption=f'Описание рыбы2 на мноооооооооооооооооооооооооооого строк', reply_markup=reply_markup)
-
+                                  caption=f'Описание рыбы2 на мноооооооооооооооооооооооооооого строк',
+                                  reply_markup=reply_markup)
 
         # start(update, context)
         return "HANDLE_MENU"
+
 
 if __name__ == '__main__':
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
     )
-
 
     load_dotenv()
     token = os.getenv("TELEGRAM_TOKEN")
