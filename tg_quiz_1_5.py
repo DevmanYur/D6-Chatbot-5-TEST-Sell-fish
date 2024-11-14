@@ -65,6 +65,23 @@ def start(update, context) :
 
 
 def handle_menu(update, context) :
+    query = update.callback_query
+    data = query.data
+    if data == 'Состояние Назад':
+        keyboard = [[
+            InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
+            InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
+        ]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        query.answer(data)
+        context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
+                                  caption=f'Меню', reply_markup=reply_markup)
+        # start(update, context)
+        return "HANDLE_MENU"
+
+
+
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text="Hello")
     keyboard = [[
@@ -78,7 +95,6 @@ def handle_menu(update, context) :
 
 def handle_description(update, context) :
     query = update.callback_query
-
     data = query.data
     if data == 'Состояние 1':
         keyboard = [[
