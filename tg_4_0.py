@@ -1,6 +1,7 @@
 import os
 import logging
 import redis
+import requests
 from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -51,12 +52,18 @@ def get_database_connection():
 
 
 def start(update, context):
-    chat_id = update.message.chat_id
-    # context.bot.send_message(chat_id=chat_id, text="Привет!")
-    keyboard = [[
-        InlineKeyboardButton("Рыба 1", callback_data='Нажата кнопка Рыба 1'),
-        InlineKeyboardButton("Рыба 2", callback_data='Нажата кнопка Рыба 2')
-    ]]
+    load_dotenv()
+    strapi_token = os.getenv("STRAPI_TOKEN")
+    headers = {'Authorization': f'Bearer {strapi_token}'}
+    response = requests.get(f'http://localhost:1337/api/products',
+                            headers=headers)
+    products = response.json()
+    keyboard = []
+    for product in products['data']:
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['id']))
+        keyboard.append(keyboard_group)
+
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Меню:', reply_markup=reply_markup)
     return 'HANDLE_DESCRIPTION'
