@@ -13,9 +13,10 @@ headers = {'Authorization': f'Bearer {strapi_token}'}
 response = requests.get(f'http://localhost:1337/api/products',
                         headers=headers)
 
+response1 = requests.get(f'http://localhost:1337/api/products/vf9v1zcox2ugiha5zkaqgnm7',headers=headers)
 
-products = response.json()
+
+product = response1.json()
 
 
-for product in products['data']:
-    pprint(product)
+pprint(product['data']['description'])
