@@ -10,15 +10,13 @@ headers = {'Authorization': f'Bearer {strapi_token}'}
 response0 = requests.get(f'http://localhost:1337/api/products/vf9v1zcox2ugiha5zkaqgnm7?populate=picture',headers=headers)
 product = response0.json()
 
-url_pic = product['data']['picture']['url']
+url_pic = product['data']['picture']['formats']['thumbnail']['url']
 
-
-name_photo = 'ddd2'
-photo_format = 'jpeg'
+name_photo = product['data']['picture']['formats']['thumbnail']['name']
 response = requests.get(f'http://localhost:1337{url_pic}')
 response.raise_for_status()
 
-photo_path = f'{name_photo}.{photo_format}'
+photo_path = f'{name_photo}'
 with open(photo_path, 'wb') as file:
     file.write(response.content)
 
