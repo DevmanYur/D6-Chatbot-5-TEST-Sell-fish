@@ -71,26 +71,26 @@ def start(update, context):
 
 def handle_menu(update, context):
     query = update.callback_query
-
     data = query.data
-    if data == 'Нажата кнопка Назад':
-        keyboard = [[
-            InlineKeyboardButton("Рыба 1", callback_data='Нажата кнопка Рыба 1'),
-            InlineKeyboardButton("Рыба 2", callback_data='Нажата кнопка Рыба 2')
-        ]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        query.message.reply_text('Меню:', reply_markup=reply_markup)
-        return 'HANDLE_DESCRIPTION'
 
-    chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=chat_id, text="Hello")
-    keyboard = [[
-        InlineKeyboardButton("Кнопка 1", callback_data='Состояние 1'),
-        InlineKeyboardButton("Кнопка 2", callback_data='Состояние 2')
-    ]]
+    load_dotenv()
+    strapi_token = os.getenv("STRAPI_TOKEN")
+    headers = {'Authorization': f'Bearer {strapi_token}'}
+    response = requests.get(f'http://localhost:1337/api/products',
+                            headers=headers)
+    products = response.json()
+    keyboard = []
+    for product in products['data']:
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
+        keyboard.append(keyboard_group)
+
+
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Выбери кнопку:', reply_markup=reply_markup)
-    return 'START'
+    query.message.reply_text('Меню:', reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
+    return 'HANDLE_DESCRIPTION'
 
 
 def handle_description(update, context):
@@ -104,7 +104,7 @@ def handle_description(update, context):
     product = response.json()
 
 
-    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
 
     keyboard = [[
         InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')
@@ -112,9 +112,12 @@ def handle_description(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     query.answer()
+    description = product['data']['description']
     context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
-                              caption=f'{product['data']['description']}',
+                              caption=f'{description}',
                               reply_markup=reply_markup)
+
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
     return "HANDLE_MENU"
 
