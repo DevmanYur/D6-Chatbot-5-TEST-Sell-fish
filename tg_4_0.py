@@ -113,7 +113,7 @@ def handle_description(update, context):
 
     query.answer()
     description = product['data']['description']
-    context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('test11.png', 'rb'),
+    context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('thumbnail_1for.jpg', 'rb'),
                               caption=f'{description}',
                               reply_markup=reply_markup)
 
