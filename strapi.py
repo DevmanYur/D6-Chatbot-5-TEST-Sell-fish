@@ -6,21 +6,27 @@ from io import BytesIO
 from PIL import Image
 load_dotenv()
 
-strapi_tokenq = os.getenv("STRAPI_TOKEN")
-headersq = {'Authorization': f'Bearer {strapi_tokenq}'}
-response0 = requests.get(f'http://localhost:1337/api/products/vf9v1zcox2ugiha5zkaqgnm7?populate=picture',headers=headersq)
-productq = response0.json()
 
-url_picq = productq['data']['picture']['formats']['thumbnail']['url']
 
-name_photo = productq['data']['picture']['formats']['thumbnail']['name']
+####555
+strapi_tokenq55 = os.getenv("STRAPI_TOKEN")
+headersq55 = {'Authorization': f'Bearer {strapi_tokenq55}'}
+response055 = requests.get(f'http://localhost:1337/api/products/zn17dtr0wv00kq32i0y8b3n1?populate=picture',headers=headersq55)
+productq55 = response055.json()
+
+url_picq55 = productq55['data']['picture']['formats']['thumbnail']['url']
+
+name_photo55 = productq55['data']['picture']['formats']['thumbnail']['name']
 # name_photo = 'ddqq'
-response22 = requests.get(f'http://localhost:1337{url_picq}')
-response22.raise_for_status()
+response2255 = requests.get(f'http://localhost:1337{url_picq55}')
+response2255.raise_for_status()
 
-image_data22 = BytesIO(response22.content)
-img = Image.open(image_data22)
-img.save('img1.png')
+image_data2255 = BytesIO(response2255.content)
+img55 = Image.open(image_data2255)
+####555
+img55.save('img3.png')
+
+
 
 
 
