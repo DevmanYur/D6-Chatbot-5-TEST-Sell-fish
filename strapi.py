@@ -107,14 +107,14 @@ def  f5():
     print("здесь что то есть")
     print('documentId :', productq66['data'][0]['tg_id'])
     print('documentId :', productq66['data'][0]['documentId'])
-    pprint(productq66)
+
     print("===========")
     documentId_ = productq66['data'][0]['documentId']
 
-    data = {'categories': params["categories"]}
 
 
-    response = requests.get(f'http://localhost:1337/api/carts/{documentId_}',headers=headersq66, json = data)
+
+    response = requests.get(f'http://localhost:1337/api/carts/{documentId_}?populate[0]=cartitems',headers=headersq66)
     productq667 = response.json()
     pprint(productq667)
     '?populate=cartitems'
@@ -132,11 +132,21 @@ populate[author][fields][0]=firstName
 &
 populate[author][fields][1]=lastName
 &
-fields[0]=title&pagination[pageSize]=10
+fields[0]=title
+&
+pagination[pageSize]=10
 &
 pagination[page]=1
 &
-status=published&locale=en
+status=published
+&
+locale=en
+
+populate[0]=relation-name
+&
+populate[1]=another-relation-name
+&
+populate[2]=yet-another-relation-name
 '''
 
 
