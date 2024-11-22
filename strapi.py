@@ -111,10 +111,7 @@ def  f5():
     print("===========")
     documentId_ = productq66['data'][0]['documentId']
 
-
-
-
-    response = requests.get(f'http://localhost:1337/api/carts/{documentId_}?populate[0]=cartitems',headers=headersq66)
+    response = requests.get(f'http://localhost:1337/api/carts/{documentId_}?populate[cartitems][populate][0]=product',headers=headersq66)
     productq667 = response.json()
     pprint(productq667)
     '?populate=cartitems'
@@ -147,6 +144,9 @@ populate[0]=relation-name
 populate[1]=another-relation-name
 &
 populate[2]=yet-another-relation-name
+
+GET /api/articles?
+populate[category][populate][0]=restaurants
 '''
 
 
