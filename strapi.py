@@ -40,7 +40,11 @@ def f3():
     strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
     headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
 
-    data = {'data': {'tg_id': '006'}}
+    tg_id = '710011'
+    tg_id_for_strapi = f'tg_id_{tg_id}'
+    print( tg_id_for_strapi)
+
+    data = {'data': {'tg_id': tg_id_for_strapi}}
 
     response0667 = requests.post(f'http://localhost:1337/api/carts', headers=headersq667, json = data)
     productq667 = response0667.json()
@@ -62,7 +66,7 @@ def f4():
     'GET /api/users?filters[username][$eq]=John'
     strapi_tokenq66 = os.getenv("STRAPI_TOKEN")
     headersq66 = {'Authorization': f'Bearer {strapi_tokenq66}'}
-    tg_id = '510011'
+    tg_id = '710011'
     tg_id_for_strapi = f'tg_id_{tg_id}'
     response066 = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={tg_id_for_strapi}', headers=headersq66)
     productq66 = response066.json()
@@ -90,15 +94,24 @@ def f4():
 
 
 
-# photo_path = f'{name_photo}'
-# with open(photo_path, 'wb') as file:
-#     file.write(img)
+def  f5():
+    strapi_tokenq66 = os.getenv("STRAPI_TOKEN")
+    headersq66 = {'Authorization': f'Bearer {strapi_tokenq66}'}
+    tg_id = '710011'
+    tg_id_for_strapi = f'tg_id_{tg_id}'
+    vremenno = '1001'
+    response066 = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={vremenno}',
+                               headers=headersq66)
+    productq66 = response066.json()
+    print("Блок А")
+    print("здесь что то есть")
+    print('documentId :', productq66['data'][0]['tg_id'])
+    print('documentId :', productq66['data'][0]['documentId'])
 
 
 
-f4()
 
-
+f5()
 
 
 
