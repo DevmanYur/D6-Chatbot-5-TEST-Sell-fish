@@ -105,7 +105,7 @@ def  f5():
     productq66 = response066.json()
     print("Блок А")
     print("здесь что то есть")
-    print('documentId :', productq66['data'][0]['tg_id'])
+    print('tg_id :', productq66['data'][0]['tg_id'])
     print('documentId :', productq66['data'][0]['documentId'])
 
     print("===========")
@@ -116,6 +116,33 @@ def  f5():
     pprint(productq667)
     '?populate=cartitems'
 
+def f6():
+    strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
+    headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
+
+    product_documentId = ''
+
+    tg_id = '710011'
+    tg_id_for_strapi = f'tg_id_{tg_id}'
+    print(tg_id_for_strapi)
+
+
+    gg = '''{
+  data: {
+    categories: {
+      set: ['z0y2x4w6v8u1t3s5r7q9onm', 'j9k8l7m6n5o4p3q2r1s0tuv4'],
+    }
+  }
+}
+    
+    '''
+
+    data = {'data': {'cart': tg_id_for_strapi,
+                     'tg_id': tg_id_for_strapi}}
+
+    response0667 = requests.post(f'http://localhost:1337/api/carts', headers=headersq667, json=data)
+    productq667 = response0667.json()
+    pprint(productq667)
 
 
 '''
