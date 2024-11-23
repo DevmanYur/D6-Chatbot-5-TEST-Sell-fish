@@ -204,6 +204,18 @@ def f7():
  'meta': {}}
 '''
 
+
+def post_cartitems(cart, product, quantity):
+    strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
+    headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
+
+    data = {'data': {'quantity': quantity,
+                     'product': product,
+                     'cart': cart
+                     }}
+    response0667 = requests.post(f'http://localhost:1337/api/cartitems', headers=headersq667, json=data)
+    productq667 = response0667.json()
+
 f6()
 
 
