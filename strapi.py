@@ -120,12 +120,15 @@ def f6():
     strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
     headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
 
-    product_documentId = ''
+    data = {'data': {'quantity': 200,
+                     'product': 'ylokeva71vdpe8xxs57nxdnv',
+                     'cart': 'efsb9hcihq106x3jj5s9ut2r'
 
-    tg_id = '710011'
-    tg_id_for_strapi = f'tg_id_{tg_id}'
-    print(tg_id_for_strapi)
 
+                     }}
+    response0667 = requests.post(f'http://localhost:1337/api/cartitems', headers=headersq667, json=data)
+    productq667 = response0667.json()
+    pprint(productq667)
 
     gg = '''{
   data: {
@@ -134,17 +137,8 @@ def f6():
     }
   }
 }
-    
+
     '''
-
-    data = {'data': {'cart': tg_id_for_strapi,
-                     'tg_id': tg_id_for_strapi}}
-
-    response0667 = requests.post(f'http://localhost:1337/api/carts', headers=headersq667, json=data)
-    productq667 = response0667.json()
-    pprint(productq667)
-
-
 '''
 /api/books
 ?
@@ -178,8 +172,39 @@ populate[category][populate][0]=restaurants
 
 
 
+def f7():
+    strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
+    headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
+    response0667 = requests.get(f'http://localhost:1337/api/cartitems/ihudrhuxqbyo8z9rbeiw09ku?populate=product&populate=cart', headers=headersq667)
+    productq667 = response0667.json()
+    pprint(productq667)
 
-f5()
+'''
+{'data': {'cart': {'createdAt': '2024-11-21T13:29:51.740Z',
+                   'documentId': 'yyl0wssrpdz3oku2xidfnof9',
+                   'id': 2,
+                   'publishedAt': '2024-11-21T13:29:52.839Z',
+                   'tg_id': '1001',
+                   'updatedAt': '2024-11-21T13:29:52.823Z'},
+          'createdAt': '2024-11-21T13:30:39.847Z',
+          'documentId': 'ihudrhuxqbyo8z9rbeiw09ku',
+          'id': 2,
+          'product': {'createdAt': '2024-11-12T07:11:08.174Z',
+                      'description': 'Вес: 80-110 гр/штука Кол-во: 9-11 штук в '
+                                     '1 кг.',
+                      'documentId': 'ylokeva71vdpe8xxs57nxdnv',
+                      'id': 8,
+                      'price': 3800,
+                      'publishedAt': '2024-11-12T07:11:08.189Z',
+                      'title': 'Живые раки (отборные)',
+                      'updatedAt': '2024-11-12T07:11:08.174Z'},
+          'publishedAt': '2024-11-21T13:30:40.987Z',
+          'quantity': 1,
+          'updatedAt': '2024-11-21T13:30:40.977Z'},
+ 'meta': {}}
+'''
+
+f6()
 
 
 
