@@ -100,7 +100,7 @@ def handle_menu(update, context):
 
         return 'HANDLE_DESCRIPTION'
 
-    if data == 'Нажата кнопка Добавить в корзину':
+    else:
         print("Блок Б")
         strapi_tokenq66 = os.getenv("STRAPI_TOKEN")
         headersq66 = {'Authorization': f'Bearer {strapi_tokenq66}'}
@@ -110,11 +110,22 @@ def handle_menu(update, context):
                                    headers=headersq66)
         productq66 = response066.json()
 
+
+
         if productq66['data']:
             print("Блок Strapi А")
             print("здесь что то есть")
             print('documentId :', productq66['data'][0]['tg_id'])
             print('documentId :', productq66['data'][0]['documentId'])
+            cart = productq66['data'][0]['documentId']
+            product = data
+            quantity = 500
+
+            print(cart)
+            print(product)
+
+
+            post_cartitems(cart, product, quantity)
         else:
             print("Блок Strapi Б")
             print("здесь пусто")
@@ -129,6 +140,11 @@ def handle_menu(update, context):
             productq667 = response0667.json()
             print("Теперь: ")
             print(productq667)
+
+            cart = productq667['data']['documentId']
+            product = data
+            quantity = 500
+            post_cartitems(cart, product, quantity)
 
         load_dotenv()
         strapi_token = os.getenv("STRAPI_TOKEN")
@@ -151,16 +167,16 @@ def handle_menu(update, context):
 
 def handle_description(update, context):
     query = update.callback_query
-    documentId = query.data
+    product_documentId = query.data
 
     load_dotenv()
     strapi_token = os.getenv("STRAPI_TOKEN")
     headers = {'Authorization': f'Bearer {strapi_token}'}
-    response = requests.get(f'http://localhost:1337/api/products/{documentId}',headers=headers)
+    response = requests.get(f'http://localhost:1337/api/products/{product_documentId}',headers=headers)
     product = response.json()
 
     keyboard = [
-        [InlineKeyboardButton("Добавить в корзину", callback_data='Нажата кнопка Добавить в корзину')],
+        [InlineKeyboardButton("Добавить в корзину", callback_data=product_documentId)],
         [InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -179,6 +195,15 @@ def handle_description(update, context):
 
 
 
+def post_cartitems(cart, product, quantity):
+    strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
+    headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
+
+    data = {'data': {'quantity': quantity,
+                     'product': product,
+                     'cart': cart
+                     }}
+    requests.post(f'http://localhost:1337/api/cartitems', headers=headersq667, json=data)
 
 
 
