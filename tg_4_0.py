@@ -1,5 +1,7 @@
 import os
 import logging
+from pprint import pprint
+
 import redis
 import requests
 from dotenv import load_dotenv
@@ -54,20 +56,35 @@ def get_database_connection():
         _database = redis.Redis(host=database_host, port=database_port, password=database_password)
     return _database
 
-
-def start(update, context):
+def headers_():
     load_dotenv()
     strapi_token = os.getenv("STRAPI_TOKEN")
     headers = {'Authorization': f'Bearer {strapi_token}'}
-    response = requests.get(f'http://localhost:1337/api/products',
-                            headers=headers)
+    return headers
+
+
+def menu_(query, context):
+    response = requests.get(f'http://localhost:1337/api/products', headers=headers_())
     products = response.json()
     keyboard = []
     for product in products['data']:
         keyboard_group = []
         keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
         keyboard.append(keyboard_group)
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.message.reply_text('Меню:', reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
+
+
+def start(update, context):
+    response = requests.get(f'http://localhost:1337/api/products',headers=headers_())
+    products = response.json()
+    keyboard = []
+    for product in products['data']:
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
+        keyboard.append(keyboard_group)
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Меню:', reply_markup=reply_markup)
     return 'HANDLE_DESCRIPTION'
@@ -75,92 +92,32 @@ def start(update, context):
 
 def handle_menu(update, context):
     query = update.callback_query
-    data = query.data
-    chat_id = query.message.chat_id
-
-    if data == 'Нажата кнопка Назад':
-        print("Блок А")
-
-        load_dotenv()
-        strapi_token = os.getenv("STRAPI_TOKEN")
-        headers = {'Authorization': f'Bearer {strapi_token}'}
-        response = requests.get(f'http://localhost:1337/api/products',
-                                headers=headers)
-        products = response.json()
-        keyboard = []
-        for product in products['data']:
-            keyboard_group = []
-            keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
-            keyboard.append(keyboard_group)
-
-
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        query.message.reply_text('Меню:', reply_markup=reply_markup)
-        context.bot.delete_message(chat_id=chat_id, message_id=query.message.message_id)
-
+    h_d_data = query.data
+    if h_d_data == 'Нажата кнопка Назад':
+        menu_(query, context)
         return 'HANDLE_DESCRIPTION'
 
     else:
-        print("Блок Б")
-        strapi_tokenq66 = os.getenv("STRAPI_TOKEN")
-        headersq66 = {'Authorization': f'Bearer {strapi_tokenq66}'}
-        tg_id = chat_id
+        menu_(query, context)
+        tg_id = query.message.chat_id
         tg_id_for_strapi = f'tg_id_{tg_id}'
         response066 = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={tg_id_for_strapi}',
-                                   headers=headersq66)
+                                   headers=headers_())
         productq66 = response066.json()
-
-
-
         if productq66['data']:
-            print("Блок Strapi А")
-            print("здесь что то есть")
-            print('documentId :', productq66['data'][0]['tg_id'])
-            print('documentId :', productq66['data'][0]['documentId'])
             cart = productq66['data'][0]['documentId']
-            product = data
+            product = h_d_data
             quantity = 500
-
-            print(cart)
-            print(product)
-
-
             post_cartitems(cart, product, quantity)
         else:
-            print("Блок Strapi Б")
-            print("здесь пусто")
-            print("создаем новый ")
-
-            strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
-            headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
-
             data = {'data': {'tg_id': tg_id_for_strapi}}
-
-            response0667 = requests.post(f'http://localhost:1337/api/carts', headers=headersq667, json=data)
+            response0667 = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
             productq667 = response0667.json()
-            print("Теперь: ")
-            print(productq667)
-
             cart = productq667['data']['documentId']
-            product = data
-            quantity = 500
+            product = h_d_data
+            quantity = 1000
             post_cartitems(cart, product, quantity)
 
-        load_dotenv()
-        strapi_token = os.getenv("STRAPI_TOKEN")
-        headers = {'Authorization': f'Bearer {strapi_token}'}
-        response = requests.get(f'http://localhost:1337/api/products',
-                                headers=headers)
-        products = response.json()
-        keyboard = []
-        for product in products['data']:
-            keyboard_group = []
-            keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
-            keyboard.append(keyboard_group)
-
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        query.message.reply_text('Меню:', reply_markup=reply_markup)
-        context.bot.delete_message(chat_id=chat_id, message_id=query.message.message_id)
 
         return 'HANDLE_DESCRIPTION'
 
@@ -168,45 +125,30 @@ def handle_menu(update, context):
 def handle_description(update, context):
     query = update.callback_query
     product_documentId = query.data
-
-    load_dotenv()
-    strapi_token = os.getenv("STRAPI_TOKEN")
-    headers = {'Authorization': f'Bearer {strapi_token}'}
-    response = requests.get(f'http://localhost:1337/api/products/{product_documentId}',headers=headers)
+    response = requests.get(f'http://localhost:1337/api/products/{product_documentId}',headers=headers_())
     product = response.json()
-
     keyboard = [
         [InlineKeyboardButton("Добавить в корзину", callback_data=product_documentId)],
         [InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-
     query.answer()
     description = product['data']['description']
-
-
     context.bot.send_document(chat_id=update.callback_query.message.chat_id, document=open('img3.png', 'rb'),
                               caption=f'{description}',
                               reply_markup=reply_markup)
 
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-
     return "HANDLE_MENU"
 
 
 
 def post_cartitems(cart, product, quantity):
-    strapi_tokenq667 = os.getenv("STRAPI_TOKEN")
-    headersq667 = {'Authorization': f'Bearer {strapi_tokenq667}'}
-
     data = {'data': {'quantity': quantity,
                      'product': product,
                      'cart': cart
                      }}
-    requests.post(f'http://localhost:1337/api/cartitems', headers=headersq667, json=data)
-
-
-
+    requests.post(f'http://localhost:1337/api/cartitems', headers=headers_(), json=data)
 
 
 if __name__ == '__main__':
