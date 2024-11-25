@@ -104,19 +104,19 @@ def handle_menu(update, context):
         response066 = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={tg_id_for_strapi}',
                                    headers=headers_())
         productq66 = response066.json()
+
+        product_, quantity_  = h_d_data.split('&')
         if productq66['data']:
             cart = productq66['data'][0]['documentId']
-            product = h_d_data
-            quantity = 500
-            post_cartitems(cart, product, quantity)
+
+            post_cartitems(cart, product_, quantity_)
         else:
             data = {'data': {'tg_id': tg_id_for_strapi}}
             response0667 = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
             productq667 = response0667.json()
             cart = productq667['data']['documentId']
-            product = h_d_data
-            quantity = 1000
-            post_cartitems(cart, product, quantity)
+
+            post_cartitems(cart, product_, quantity_)
 
 
         return 'HANDLE_DESCRIPTION'
@@ -127,8 +127,14 @@ def handle_description(update, context):
     product_documentId = query.data
     response = requests.get(f'http://localhost:1337/api/products/{product_documentId}',headers=headers_())
     product = response.json()
+
+    send_product_documentId_1 = f'{product_documentId}&1'
+    send_product_documentId_5 = f'{product_documentId}&5'
+    send_product_documentId_10 = f'{product_documentId}&10'
     keyboard = [
-        [InlineKeyboardButton("Добавить в корзину", callback_data=product_documentId)],
+        [InlineKeyboardButton("Добавить 1 кг", callback_data=send_product_documentId_1)],
+        [InlineKeyboardButton("Добавить 5 кг", callback_data=send_product_documentId_5)],
+        [InlineKeyboardButton("Добавить 10 кг", callback_data=send_product_documentId_10)],
         [InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
