@@ -1,9 +1,14 @@
+import html
+import json
 import os
 from pprint import pprint
 import requests
+import telegram
 from dotenv import load_dotenv
 from io import BytesIO
 from PIL import Image
+from telegram.ext import Updater
+
 load_dotenv()
 
 
@@ -217,6 +222,16 @@ def post_cartitems(cart, product, quantity):
     productq667 = response0667.json()
 
 def f8():
+
+
+    load_dotenv()
+    telegram_token = os.environ['TELEGRAM_TOKEN']
+    tg_bot = telegram.Bot(token=telegram_token)
+    chat_id = tg_bot.get_updates()[0].message.from_user.id
+
+
+
+
     strapi_tokenq = os.getenv("STRAPI_TOKEN")
     headers = {'Authorization': f'Bearer {strapi_tokenq}'}
 
@@ -226,16 +241,38 @@ def f8():
         headers=headers)
     carts_filters = carts_filters_response.json()
     posledniy_element = carts_filters['data'][-1]['documentId']
-    print(posledniy_element)
-    print()
+
 
     posledniy_element_response = requests.get(
         f'http://localhost:1337/api/carts/{posledniy_element}?populate[cartitems][populate][0]=product',
         headers=headers)
 
     podrobnee_o_obekte = posledniy_element_response.json()
+    total = 0
+    head_text = (f'Моя карзина:\n'
+                 f'-----------\n\n')
+    body_text =''
+    for cartitem in podrobnee_o_obekte['data']['cartitems']:
+        title = cartitem['product']['title']
+        price = cartitem['product']['price']
+        quantity = cartitem['quantity']
+        pre_total = price*quantity
+        total = total+pre_total
+        text_product = (f'● {title}\n'
+                 f'Цена за кг: {price}\n'
+                 f'Кол-во: {quantity}\n'
+                 f'Подитог: {pre_total}\n\n')
+        body_text = body_text + text_product
+    footer_text = (f'-----------\n\n'
+                   f'Итого {total}')
+    text = head_text + body_text + footer_text
 
-    pprint(podrobnee_o_obekte)
+
+    tg_bot.send_message(chat_id=chat_id, text=text)
+    # bot.send_message(ид_получателя, data, parse_mode='HTML')
+
+
+
 
 
 
