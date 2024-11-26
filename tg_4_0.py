@@ -97,25 +97,29 @@ def handle_menu(update, context):
         menu_(query, context)
         return 'HANDLE_DESCRIPTION'
 
+
+    if h_d_data == 'Нажата кнопка Корзина':
+        menu_(query, context)
+        return 'HANDLE_DESCRIPTION'
+
+
+
     else:
         menu_(query, context)
         tg_id = query.message.chat_id
         tg_id_for_strapi = f'tg_id_{tg_id}'
-        response066 = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={tg_id_for_strapi}',
+        carts_response = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={tg_id_for_strapi}',
                                    headers=headers_())
-        productq66 = response066.json()
-
+        carts = carts_response.json()
         product_, quantity_  = h_d_data.split('&')
-        if productq66['data']:
-            cart = productq66['data'][0]['documentId']
-
+        if carts['data']:
+            cart = carts['data'][0]['documentId']
             post_cartitems(cart, product_, quantity_)
         else:
             data = {'data': {'tg_id': tg_id_for_strapi}}
-            response0667 = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
-            productq667 = response0667.json()
-            cart = productq667['data']['documentId']
-
+            post_cart_response = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
+            json_cart = post_cart_response.json()
+            cart = json_cart['data']['documentId']
             post_cartitems(cart, product_, quantity_)
 
 
@@ -135,7 +139,8 @@ def handle_description(update, context):
         [InlineKeyboardButton("Добавить 1 кг", callback_data=send_product_documentId_1)],
         [InlineKeyboardButton("Добавить 5 кг", callback_data=send_product_documentId_5)],
         [InlineKeyboardButton("Добавить 10 кг", callback_data=send_product_documentId_10)],
-        [InlineKeyboardButton("Назад", callback_data='Нажата кнопка Назад')]
+        [InlineKeyboardButton("Моя корзина", callback_data='Нажата кнопка Корзина')],
+        [InlineKeyboardButton("В меню", callback_data='Нажата кнопка Назад')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.answer()
