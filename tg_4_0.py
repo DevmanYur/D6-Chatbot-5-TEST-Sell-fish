@@ -91,7 +91,9 @@ def start(update, context):
 
 
 def handle_menu(update, context):
+
     query = update.callback_query
+    query.answer()
     h_d_data = query.data
     if h_d_data == 'Нажата кнопка Назад':
         menu_(query, context)
@@ -99,7 +101,17 @@ def handle_menu(update, context):
 
 
     if h_d_data == 'Нажата кнопка Корзина':
-        menu_(query, context)
+
+        keyboard = [
+            [InlineKeyboardButton("Моя корзина", callback_data='Нажата кнопка Корзина')],
+            [InlineKeyboardButton("В меню", callback_data='Нажата кнопка Назад')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.message.reply_text('text', reply_markup=reply_markup)
+        context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
+
+
         return 'HANDLE_DESCRIPTION'
 
 
