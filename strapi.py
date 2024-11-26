@@ -216,11 +216,42 @@ def post_cartitems(cart, product, quantity):
     response0667 = requests.post(f'http://localhost:1337/api/cartitems', headers=headersq667, json=data)
     productq667 = response0667.json()
 
-f6()
+def f8():
+    strapi_tokenq = os.getenv("STRAPI_TOKEN")
+    headers = {'Authorization': f'Bearer {strapi_tokenq}'}
+
+    vremenno = '1001'
+    carts_filters_response = requests.get(
+        f'http://localhost:1337/api/carts?filters[tg_id][$eq]={vremenno}',
+        headers=headers)
+    carts_filters = carts_filters_response.json()
+    posledniy_element = carts_filters['data'][-1]['documentId']
+    print(posledniy_element)
+    print()
+
+    posledniy_element_response = requests.get(
+        f'http://localhost:1337/api/carts/{posledniy_element}?populate[cartitems][populate][0]=product',
+        headers=headers)
+
+    podrobnee_o_obekte = posledniy_element_response.json()
+
+    pprint(podrobnee_o_obekte)
 
 
 
 
+
+
+    # tg_id = '710011'
+    # tg_id_for_strapi = f'tg_id_{tg_id}'
+    # vremenno = '1001'
+    # response066 = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={vremenno}',
+    #                            headers=headersq66)
+
+
+
+
+f8()
 
 import io
 from io import BytesIO
