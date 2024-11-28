@@ -27,8 +27,8 @@ def start(update, context):
 
 def get_menu(query, context):
     query.answer(query.data)
-    keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1'),
-                 InlineKeyboardButton('Продукт 2', callback_data='Продукт 1')],
+    keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1')],
+                [InlineKeyboardButton('Продукт 2', callback_data='Продукт 1')],
                 [InlineKeyboardButton('Корзина', callback_data='Корзина')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text="Меню",
@@ -72,8 +72,8 @@ def get_product(query, context):
             f'Цена 150р / шт\n')
     keyboard = [
         [InlineKeyboardButton("Добавить 1 кг", callback_data='Добавить 1')],
-        [InlineKeyboardButton("Добавить 5 кг", callback_data='Добавить 1')],
-        [InlineKeyboardButton("Добавить 10 кг", callback_data='Добавить 1')],
+        [InlineKeyboardButton("Добавить 2 кг", callback_data='Добавить 2')],
+        [InlineKeyboardButton("Добавить 3 кг", callback_data='Добавить 3')],
         [InlineKeyboardButton('Корзина', callback_data='Корзина')],
         [InlineKeyboardButton('Меню', callback_data='Меню')]
     ]
@@ -87,6 +87,8 @@ def get_product(query, context):
 
 def choice_from_start(update, context):
     query = update.callback_query
+
+
 
     if query.data =='Меню':
         return get_menu(query, context)
@@ -108,6 +110,15 @@ def choice_from_menu(update, context):
 
 def choice_from_product(update, context):
     query = update.callback_query
+
+    if query.data =='Добавить 1':
+        return get_product(query, context)
+
+    if query.data =='Добавить 2':
+        return get_product(query, context)
+
+    if query.data =='Добавить 3':
+        return get_product(query, context)
 
     if query.data =='Меню':
         return get_menu(query, context)
