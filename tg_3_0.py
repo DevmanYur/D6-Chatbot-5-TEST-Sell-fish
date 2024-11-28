@@ -16,7 +16,6 @@ _database = None
 
 
 def start(update, context):
-    update.message.reply_text(text='Привет!')
     keyboard = [[InlineKeyboardButton("Меню", callback_data='Меню'), #описано состояние
                  InlineKeyboardButton("Корзина", callback_data='Корзина')],] #описано состояние
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -31,8 +30,9 @@ def get_menu(query, context):
                 [InlineKeyboardButton('Продукт 2', callback_data='Продукт 1')],
                 [InlineKeyboardButton('Корзина', callback_data='Корзина')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",
-                             reply_markup=reply_markup)
+    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
     return 'Выбор после Меню'
 
 
@@ -56,9 +56,8 @@ def get_cart(query, context):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-
-    context.bot.send_message(chat_id=query.message.chat_id, text=text,
-                             reply_markup=reply_markup)
+    context.bot.send_message(chat_id=query.message.chat_id, text=text,reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
     return 'Выбор после Корзины'
 
@@ -80,6 +79,7 @@ def get_product(query, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text=text,
                              reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
     return 'Выбор после Продукта'
 
@@ -87,10 +87,7 @@ def get_product(query, context):
 
 def choice_from_start(update, context):
     query = update.callback_query
-
-
-
-    if query.data =='Меню':
+    if update.callback_query.data =='Меню':
         return get_menu(query, context)
 
     if query.data =='Корзина':
