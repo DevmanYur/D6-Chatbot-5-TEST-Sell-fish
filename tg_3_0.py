@@ -24,7 +24,8 @@ def start(update, context):
 
 # Меню
 
-def get_menu(query, context):
+def get_menu(update, context):
+    query = update.callback_query
     query.answer(query.data)
     keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1')],
                 [InlineKeyboardButton('Продукт 2', callback_data='Продукт 1')],
@@ -36,9 +37,9 @@ def get_menu(query, context):
     return 'Выбор после Меню'
 
 
-def get_cart(query, context):
+def get_cart(update, context):
+    query = update.callback_query
     query.answer(query.data)
-
     text = (f'Корзина\n'
             f'-------\n'
             f'\n'
@@ -86,67 +87,45 @@ def get_product(query, context):
 
 
 def choice_from_start(update, context):
-    query = update.callback_query
+
     if update.callback_query.data =='Меню':
-        return get_menu(query, context)
+        return get_menu(update, context)
 
-    if query.data =='Корзина':
-        return  get_cart(query, context)
-
+    if update.callback_query.data =='Корзина':
+        return get_cart(update, context)
 
 
 def choice_from_menu(update, context):
-    query = update.callback_query
+    if update.callback_query.data =='Продукт 1':
+        return get_product(update, context)
 
-    if query.data =='Продукт 1':
-        return get_product(query, context)
+    if update.callback_query.data =='Продукт 2':
+        return get_product(update, context)
 
-    if query.data =='Корзина':
-        return  get_cart(query, context)
+    if update.callback_query.data =='Корзина':
+        return  get_cart(update, context)
 
 
 def choice_from_product(update, context):
-    query = update.callback_query
+    if update.callback_query.data =='Добавить 1':
+        return get_product(update, context)
 
-    if query.data =='Добавить 1':
-        return get_product(query, context)
+    if update.callback_query.data =='Добавить 2':
+        return get_product(update, context)
 
-    if query.data =='Добавить 2':
-        return get_product(query, context)
+    if update.callback_query.data =='Добавить 3':
+        return get_product(update, context)
 
-    if query.data =='Добавить 3':
-        return get_product(query, context)
+    if update.callback_query.data =='Меню':
+        return get_menu(update, context)
 
-    if query.data =='Меню':
-        return get_menu(query, context)
-
-    if query.data =='Корзина':
-        return  get_cart(query, context)
+    if update.callback_query.data =='Корзина':
+        return  get_cart(update, context)
 
 
-
-def choice_from_cart(update, context):
-    update.message.reply_text(text='choice_from_cart')
-    print('choice2')
-    return 'START'
 
 def handle_users_reply(update, context):
-    """
-    Функция, которая запускается при любом сообщении от пользователя и решает как его обработать.
-    Эта функция запускается в ответ на эти действия пользователя:
-        * Нажатие на inline-кнопку в боте
-        * Отправка сообщения боту
-        * Отправка команды боту
-    Она получает стейт пользователя из базы данных и запускает соответствующую функцию-обработчик (хэндлер).
-    Функция-обработчик возвращает следующее состояние, которое записывается в базу данных.
-    Если пользователь только начал пользоваться ботом, Telegram форсит его написать "/start",
-    поэтому по этой фразе выставляется стартовое состояние.
-    Если пользователь захочет начать общение с ботом заново, он также может воспользоваться этой командой.
-    """
     db = get_database_connection()
-
-
-    # Функция получает chat_id пользователя и фразу, которую он сказал:
     if update.message:
         user_reply = update.message.text
         chat_id = update.message.chat_id
@@ -156,44 +135,25 @@ def handle_users_reply(update, context):
     else:
         return
 
-
-    # Затем, если пользователь впервые, она выставляет ему стейт START:
     if user_reply == '/start':
         user_state = 'START'
-
-    # Если же пользователь уже работал с ботом, его стейт хранится в базе данных:
     else:
         user_state = db.get(chat_id).decode("utf-8")
-
-
-    # Далее идёт словарь с состояниями и их обработчиками. Состояние START обрабатывает функция start,
-    # а состояние ECHO обрабатывает функция echo:
     states_functions = {
         'START': start,
         'Выбор после start': choice_from_start,
         'Выбор после Меню': choice_from_menu,
         'Выбор после Корзины': choice_from_cart,
         'Выбор после Продукта' : choice_from_product
-
     }
-
-    # Далее получаем функцию, которая обрабатывает состояние пользователя:
     state_handler = states_functions[user_state]
-
     try:
-        # Запускаем её, получаем в ответ следующее состояние:
         next_state = state_handler(update, context)
-
-        # И записываем за пользователем следующее состояние:
         db.set(chat_id, next_state)
     except Exception as err:
         print(err)
 
-
 def get_database_connection():
-    """
-    Возвращает конекшн с базой данных Redis, либо создаёт новый, если он ещё не создан.
-    """
     global _database
     if _database is None:
         database_password = os.getenv("DATABASE_PASSWORD")
