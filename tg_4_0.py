@@ -79,9 +79,9 @@ def menu_(query, context):
 
 def start(update, context):
     response = requests.get(f'http://localhost:1337/api/products',headers=headers_())
-    products = response.json()
+    products = response.json()['data']
     keyboard = []
-    for product in products['data']:
+    for product in products:
         keyboard_group = []
         keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
         keyboard.append(keyboard_group)
