@@ -12,23 +12,25 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
+logger = logging.getLogger(__name__)
+
 _database = None
 
 
 def start(update, context):
-    keyboard = [[InlineKeyboardButton("Меню", callback_data='Меню'), #описано состояние
-                 InlineKeyboardButton("Корзина", callback_data='Корзина')],] #описано состояние
+    text = 'Магазин'
+    keyboard = [[InlineKeyboardButton("Меню", callback_data='Меню')],
+                [ InlineKeyboardButton("Корзина", callback_data='Корзина')],]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Главная', reply_markup=reply_markup)
+    update.message.reply_text(text= text, reply_markup=reply_markup)
     return "Выбор после start"
 
-# Меню
 
 def get_menu(update, context):
     query = update.callback_query
     query.answer(query.data)
     keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1')],
-                [InlineKeyboardButton('Продукт 2', callback_data='Продукт 1')],
+                [InlineKeyboardButton('Продукт 2', callback_data='Продукт 2')],
                 [InlineKeyboardButton('Корзина', callback_data='Корзина')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
@@ -185,6 +187,11 @@ def get_database_connection():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    )
+
+
     load_dotenv()
     token = os.getenv("TELEGRAM_TOKEN")
     updater = Updater(token)
