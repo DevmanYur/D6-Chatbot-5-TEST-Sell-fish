@@ -26,7 +26,12 @@ def headers_():
 def get_strapi_products():
     response = requests.get(f'http://localhost:1337/api/products', headers=headers_())
     products = response.json()['data']
-    return products
+    keyboard = []
+    for product in products:
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
+        keyboard.append(keyboard_group)
+    return keyboard
 
 def start(update, context):
     text = 'Магазин'
@@ -41,14 +46,7 @@ def get_menu(update, context):
     query = update.callback_query
     query.answer(query.data)
 
-    keyboard = []
-
-    products = get_strapi_products()
-    for product in products:
-        print(product)
-        keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
-        keyboard.append(keyboard_group)
+    keyboard = get_strapi_products()
     keyboard.append([InlineKeyboardButton('Корзина', callback_data='Корзина')])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
