@@ -51,7 +51,7 @@ def get_cart(update, context):
 
     keyboard = [
         [InlineKeyboardButton('Удалить продукт 1', callback_data='Удалить продукт 1')],
-        [InlineKeyboardButton('Удалить продукт 2', callback_data='Удалить продукт 1')],
+        [InlineKeyboardButton('Удалить продукт 2', callback_data='Удалить продукт 2')],
         [InlineKeyboardButton('Меню', callback_data='Меню')],
         [InlineKeyboardButton('Оформить заказ', callback_data='Оформить заказ')]
     ]
@@ -64,7 +64,8 @@ def get_cart(update, context):
 
 
 
-def get_product(query, context):
+def get_product(update, context):
+    query = update.callback_query
     query.answer(query.data)
     text = (f'Продукт 1\n'
             f'-------\n'
@@ -84,43 +85,63 @@ def get_product(query, context):
 
     return 'Выбор после Продукта'
 
-
+def get_order(update, context):
+    query = update.callback_query
+    query.answer(query.data)
+    text = 'Оформляем заказ'
+    context.bot.send_message(chat_id=query.message.chat_id, text=text)
 
 def choice_from_start(update, context):
-
-    if update.callback_query.data =='Меню':
+    user_reply = update.callback_query.data
+    if  user_reply =='Меню':
         return get_menu(update, context)
 
-    if update.callback_query.data =='Корзина':
+    if user_reply =='Корзина':
         return get_cart(update, context)
 
 
 def choice_from_menu(update, context):
-    if update.callback_query.data =='Продукт 1':
+    user_reply = update.callback_query.data
+    if user_reply =='Продукт 1':
         return get_product(update, context)
 
-    if update.callback_query.data =='Продукт 2':
+    if user_reply =='Продукт 2':
         return get_product(update, context)
 
-    if update.callback_query.data =='Корзина':
+    if user_reply =='Корзина':
         return  get_cart(update, context)
 
 
 def choice_from_product(update, context):
-    if update.callback_query.data =='Добавить 1':
+    user_reply = update.callback_query.data
+    if user_reply =='Добавить 1':
         return get_product(update, context)
 
-    if update.callback_query.data =='Добавить 2':
+    if user_reply =='Добавить 2':
         return get_product(update, context)
 
-    if update.callback_query.data =='Добавить 3':
+    if user_reply =='Добавить 3':
         return get_product(update, context)
 
-    if update.callback_query.data =='Меню':
+    if user_reply =='Меню':
         return get_menu(update, context)
 
-    if update.callback_query.data =='Корзина':
+    if user_reply =='Корзина':
         return  get_cart(update, context)
+
+def choice_from_cart(update, context):
+    data = update.callback_query.data
+    if data =='Удалить продукт 1':
+        return get_cart(update, context)
+
+    if data =='Удалить продукт 2':
+        return get_cart(update, context)
+
+    if data =='Меню':
+        return get_menu(update, context)
+
+    if data =='Оформить заказ':
+        return  get_order(update, context)
 
 
 
