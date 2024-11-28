@@ -17,57 +17,84 @@ _database = None
 
 def start(update, context):
     update.message.reply_text(text='Привет!')
-    keyboard = [[InlineKeyboardButton("Меню", callback_data='Меню'),
-                 InlineKeyboardButton("Корзина", callback_data='Корзина')],]
+    keyboard = [[InlineKeyboardButton("Меню", callback_data='Меню'), #описано состояние
+                 InlineKeyboardButton("Корзина", callback_data='Корзина')],] #описано состояние
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Главная', reply_markup=reply_markup)
-    return "Выбор из главной"
+    return "Выбор после start"
+
+# Меню
+
+def get_menu(query, context):
+    query.answer(query.data)
+    keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1'),
+                 InlineKeyboardButton('Продукт 2', callback_data='Продукт 2')],
+                [InlineKeyboardButton('Корзина', callback_data='Корзина')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",
+                             reply_markup=reply_markup)
+    return 'Выбор после Меню'
 
 
-def choice_from_main(update, context):
+def get_cart(query, context):
+    query.answer(query.data)
+    keyboard = [
+        [InlineKeyboardButton('Удалить продукт 1', callback_data='Удалить продукт 1')],
+        [InlineKeyboardButton('Удалить продукт 2', callback_data='Удалить продукт 2')],
+        [InlineKeyboardButton('Меню', callback_data='Меню')],
+        [InlineKeyboardButton('Оформить заказ', callback_data='Оформить заказ')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    text = (f'Корзина\n'
+            f'-------\n'
+            f'\n'
+            f'Продукт 1\n'
+            f'Продукт 2\n'
+            f'\n'
+            f'-------\n'
+            f'Итого 1 000р.')
+    context.bot.send_message(chat_id=query.message.chat_id, text=text,
+                             reply_markup=reply_markup)
+
+    return 'Выбор после Корзины'
+
+
+def choice_from_start(update, context):
+    query = update.callback_query
+
+    if query.data =='Меню':
+        return get_menu(query, context)
+
+    if query.data =='Корзина':
+        return  get_cart(query, context)
+
+
+
+def choice_from_menu(update, context):
     query = update.callback_query
     data = query.data
-    if data =='Меню':
+    if data == 'Продукт 1':
         query.answer(data)
-        keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1'),
-                     InlineKeyboardButton('Продукт 2', callback_data='Продукт 2')],
-                     [InlineKeyboardButton('Корзина', callback_data='Корзина')]]
-
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        context.bot.send_message(chat_id=update.callback_query.message.chat_id, text="Меню",
-                                 reply_markup=reply_markup)
-        return 'CHOICE_1'
-
-    if data =='Корзина':
-        query.answer(data)
-
+        text = (f'Продукт 1\n'
+                f'-------\n'
+                f'\n'
+                f'Цена 150р / шт\n')
         keyboard = [
-            [InlineKeyboardButton('Удалить продукт 1', callback_data='Удалить продукт 1')],
-            [InlineKeyboardButton('Удалить продукт 2', callback_data='Удалить продукт 2')],
-            [InlineKeyboardButton('Меню', callback_data='Меню')],
-            [InlineKeyboardButton('Оформить заказ', callback_data='Оформить заказ')]
+            [InlineKeyboardButton("Добавить 1 кг", callback_data=send_product_documentId_1)],
+            [InlineKeyboardButton("Добавить 5 кг", callback_data=send_product_documentId_5)],
+            [InlineKeyboardButton("Добавить 10 кг", callback_data=send_product_documentId_10)],
+            [InlineKeyboardButton("Моя корзина", callback_data='Нажата кнопка Корзина')],
+            [InlineKeyboardButton("В меню", callback_data='Нажата кнопка Назад')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        text = (f'Корзина\n'
-                f'-------\n'
-                f'\n'
-                f'Продукт 1\n'
-                f'Продукт 2\n'
-                f'\n'
-                f'-------\n'
-                f'Итого 1 000р.')
-        context.bot.send_message(chat_id=update.callback_query.message.chat_id, text=text,
-                                 reply_markup=reply_markup)
-
-        return  'CHOICE_2'
 
 
-def choice1(update, context):
-    print('choice1')
     return 'START'
 
-def choice2(update, context):
+def choice_from_cart(update, context):
+    update.message.reply_text(text='choice_from_cart')
     print('choice2')
     return 'START'
 
@@ -111,9 +138,9 @@ def handle_users_reply(update, context):
     # а состояние ECHO обрабатывает функция echo:
     states_functions = {
         'START': start,
-        'Выбор из главной': choice_from_main,
-        'CHOICE_1': choice1,
-        'CHOICE_2': choice2,
+        'Выбор после start': choice_from_start,
+        'Выбор после Меню': choice_from_menu,
+        'Выбор после Корзины': choice_from_cart,
     }
 
     # Далее получаем функцию, которая обрабатывает состояние пользователя:
