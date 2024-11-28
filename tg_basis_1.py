@@ -5,6 +5,8 @@ redis==3.2.1
 """
 import os
 import logging
+from pprint import pprint
+
 import redis
 import requests
 from dotenv import load_dotenv
@@ -29,9 +31,22 @@ def get_strapi_products():
     keyboard = []
     for product in products:
         keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=product['documentId']))
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=f'Продукт&&&{product['documentId']}'))
         keyboard.append(keyboard_group)
     return keyboard
+
+
+def get_strapi_product_documentId(product_documentId):
+    response = requests.get(f'http://localhost:1337/api/products/{product_documentId}', headers=headers_())
+    product = response.json()
+    pprint(product)
+    title = product['data']['title']
+    price = product['data']['price']
+    description = product['data']['description']
+
+    return title, price, description
+
+
 
 def start(update, context):
     text = 'Магазин'
@@ -85,11 +100,20 @@ def get_cart(update, context):
 
 def get_product(update, context):
     query = update.callback_query
+    data = query.data
+    _ggg , product_documentId = data.split('&&&')
+
+    print(_ggg)
+    print(product_documentId)
+
+    title, price, description = get_strapi_product_documentId(product_documentId)
+
     query.answer(query.data)
-    text = (f'Продукт 1\n'
-            f'-------\n'
+    text = (f'{title}\n'
             f'\n'
-            f'Цена 150р / шт\n')
+            f'Цена {price}\n'
+            f'\n'
+            f'{description}\n')
     keyboard = [
         [InlineKeyboardButton("Добавить 1 кг", callback_data='Добавить 1')],
         [InlineKeyboardButton("Добавить 2 кг", callback_data='Добавить 2')],
@@ -121,10 +145,7 @@ def choice_from_start(update, context):
 
 def choice_from_menu(update, context):
     user_reply = update.callback_query.data
-    if user_reply =='Продукт 1':
-        return get_product(update, context)
-
-    if user_reply =='Продукт 2':
+    if 'Продукт&&&' in user_reply:
         return get_product(update, context)
 
     if user_reply =='Корзина':
