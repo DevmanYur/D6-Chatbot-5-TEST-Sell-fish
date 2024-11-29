@@ -108,11 +108,14 @@ def choice_from_start(update, context):
 def get_products_keyboard(cart_id):
     response = requests.get(f'http://localhost:1337/api/products', headers=headers())
     products = response.json()['data']
+
     products_keyboard = []
     for product in products:
-        callback_data = get_callback_data(cart_id=cart_id, product_id=product['documentId'], action='P')
+        title = product['title']
+        product_id = product['documentId']
+        callback_data = get_callback_data(cart_id=cart_id, product_id=product_id, action='P')
         keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data= callback_data))
+        keyboard_group.append(InlineKeyboardButton(title, callback_data= callback_data))
         products_keyboard.append(keyboard_group)
     return products_keyboard
 
