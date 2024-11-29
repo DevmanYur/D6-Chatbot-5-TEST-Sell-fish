@@ -104,9 +104,9 @@ def start(update, context):
     new_cart_id = get_new_cart_id(tg_id)
     callback_data_menu = get_callback_data(cart_id = new_cart_id, action = 'M')
     callback_data_cart = get_callback_data(cart_id = new_cart_id, action = 'C')
-    keyboard = [[InlineKeyboardButton("Меню", callback_data=callback_data_menu)],
-                [ InlineKeyboardButton("Корзина", callback_data=callback_data_cart)]]
-
+    keyboard = []
+    keyboard.append([InlineKeyboardButton("Меню", callback_data=callback_data_menu)])
+    keyboard.append([InlineKeyboardButton("Корзина", callback_data=callback_data_cart)])
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(text= text, reply_markup=reply_markup)
     return "Выбор после start"
@@ -123,6 +123,18 @@ def choice_from_start(update, context):
         return get_cart(update, context)
 
 
+
+def get_products_keyboard(cart_id):
+    response = requests.get(f'http://localhost:1337/api/products', headers=headers())
+    products = response.json()['data']
+    products_keyboard = []
+    for product in products:
+        callback_data = get_callback_data(cart_id=cart_id, product_id=product['documentId'], action='P')
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data= callback_data))
+        products_keyboard.append(keyboard_group)
+    return products_keyboard
+
 def get_menu(update, context):
     query = update.callback_query
     user_reply = query.data
@@ -130,10 +142,9 @@ def get_menu(update, context):
 
     callback_data_cart = get_callback_data(cart_id=cart_id, action='C')
 
+    keyboard = get_products_keyboard(cart_id)
+    keyboard.append([InlineKeyboardButton("Корзина", callback_data=callback_data_cart)])
 
-    keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1')],
-                [InlineKeyboardButton('Продукт 2', callback_data='Продукт 2')],
-                [InlineKeyboardButton('Корзина', callback_data=callback_data_cart)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
@@ -144,7 +155,7 @@ def get_menu(update, context):
 def choice_from_menu(update, context):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
-    
+
     if action == 'C':
         return get_cart(update, context)
 
