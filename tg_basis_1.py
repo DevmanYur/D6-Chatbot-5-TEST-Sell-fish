@@ -25,6 +25,18 @@ def headers_():
     headers = {'Authorization': f'Bearer {strapi_token}'}
     return headers
 
+def get_callback_data(cart_id='empty', product_id ='empty', action='empty', count='empty' ):
+    callback_data = f'{cart_id}&&&{product_id}&&&{action}&&&{count}'
+    return callback_data
+
+def get_new_cart_document_id(tg_id):
+    tg_id_for_strapi = f'tg_id_{tg_id}'
+    data = {'data': {'tg_id': tg_id_for_strapi}}
+    post_cart_response = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
+    json_cart = post_cart_response.json()
+    new_cart_document_id = json_cart['data']['documentId']
+    return new_cart_document_id
+
 def get_strapi_products():
     response = requests.get(f'http://localhost:1337/api/products', headers=headers_())
     products = response.json()['data']
@@ -72,8 +84,12 @@ def get_step_measure(first_step, second_step, third_step,  product_documentId):
 
 def start(update, context):
     text = 'Магазин'
-    keyboard = [[InlineKeyboardButton("Меню", callback_data='Меню')],
-                [ InlineKeyboardButton("Корзина", callback_data='Корзина')],]
+    tg_id = update.message.chat_id
+    cart_id = get_new_cart_document_id(tg_id)
+    callback_data_menu = get_callback_data(cart_id=cart_id, action='Меню')
+    callback_data_cart = get_callback_data(cart_id=cart_id, action='Корзина')
+    keyboard = [[InlineKeyboardButton("Меню", callback_data=callback_data_menu)],
+                [ InlineKeyboardButton("Корзина", callback_data=callback_data_cart)],]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(text= text, reply_markup=reply_markup)
     return "Выбор после start"
@@ -143,10 +159,12 @@ def get_order(update, context):
 def choice_from_start(update, context):
     user_reply = update.callback_query.data
 
-    if  user_reply =='Меню':
+    cart_id, product_id, action, count = user_reply.split('&&&')
+
+    if  action =='Меню':
         return get_menu(update, context)
 
-    if user_reply =='Корзина':
+    if action =='Корзина':
         return get_cart(update, context)
 
 
