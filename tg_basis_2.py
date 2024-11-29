@@ -5,8 +5,6 @@ redis==3.2.1
 """
 import os
 import logging
-from pprint import pprint
-
 import redis
 import requests
 from dotenv import load_dotenv
@@ -19,93 +17,20 @@ logger = logging.getLogger(__name__)
 
 _database = None
 
-def headers():
-    load_dotenv()
-    strapi_token = os.getenv("STRAPI_TOKEN")
-    headers = {'Authorization': f'Bearer {strapi_token}'}
-    return headers
-
-def get_callback_data(cart_id='empty', product_id ='empty', action='empty', count='empty' ):
-    callback_data = f'{cart_id}&&&{product_id}&&&{action}&&&{count}'
+def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', condition1='_', condition2='_'):
+    callback_data = f'tg_{cart_id}&{product_id}&{action}&{count}&{condition1}&{condition2}'
+    # callback_data = get_callback_data(cart_id, product_id , action, count, condition1, condition2)
+    # cart_id, product_id , action, count, condition1, condition2 = get_callback_data(cart_id, product_id , action, count, condition1, condition2)
     return callback_data
 
-def get_new_cart_document_id(tg_id):
-    tg_id_for_strapi = f'tg_id_{tg_id}'
-    data = {'data': {'tg_id': tg_id_for_strapi}}
-    post_cart_response = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
-    json_cart = post_cart_response.json()
-    new_cart_document_id = json_cart['data']['documentId']
-    return new_cart_document_id
-
-def get_strapi_products(cart_id):
-    response = requests.get(f'http://localhost:1337/api/products', headers=headers_())
-    products = response.json()['data']
-    keyboard = []
-    for product in products:
-        keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=get_callback_data(cart_id=cart_id,
-                                                                                                     product_id = product['documentId'],
-                                                                                                     action='Продукт')))
-
-
-        keyboard.append(keyboard_group)
-    return keyboard
-
-
-def get_strapi_product_documentId(product_documentId):
-    response = requests.get(f'http://localhost:1337/api/products/{product_documentId}', headers=headers_())
-    product = response.json()
-    title = product['data']['title']
-    price = product['data']['price']
-    description = product['data']['description']
-    text = (f'{title}\n'
-            f'\n'
-            f'Цена {price}\n'
-            f'\n'
-            f'{description}\n')
-
-    return text
-
-
-def get_new_cart_document_id(tg_id):
-    tg_id_for_strapi = f'tg_id_{tg_id}'
-    data = {'data': {'tg_id': tg_id_for_strapi}}
-    post_cart_response = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
-    json_cart = post_cart_response.json()
-    new_cart_document_id = json_cart['data']['documentId']
-    return new_cart_document_id
-
-
-
-def get_step_measure(first_step, second_step, third_step,  product_documentId):
-    step_measure = [first_step, second_step, third_step]
-    keyboard =[]
-    for step in step_measure:
-        keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(f'Добавить {step} кг', callback_data=f'{product_documentId}&&&Добавить&&&{step}'))
-        keyboard.append(keyboard_group)
-    return keyboard
-
-def start(update, context):
-    text = 'Магазин'
-    tg_id = update.message.chat_id
-    cart_id = get_new_cart_document_id(tg_id)
-    keyboard = [[InlineKeyboardButton("Меню", callback_data=get_callback_data(cart_id=cart_id, action='Меню'))],
-                [ InlineKeyboardButton("Корзина", callback_data=get_callback_data(cart_id=cart_id, action='Корзина'))],]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(text= text, reply_markup=reply_markup)
-    return "Выбор после start"
 
 
 def get_menu(update, context):
     query = update.callback_query
     query.answer(query.data)
-
-    cart_id, product_id, action, count = query.data.split('&&&')
-
-    keyboard = get_strapi_products(cart_id)
-    keyboard.append([InlineKeyboardButton('Корзина', callback_data=get_callback_data(cart_id=cart_id, action='Корзина'))])
-
+    keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1')],
+                [InlineKeyboardButton('Продукт 2', callback_data='Продукт 2')],
+                [InlineKeyboardButton('Корзина', callback_data='Корзина')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
@@ -143,15 +68,22 @@ def get_cart(update, context):
 def get_product(update, context):
     query = update.callback_query
     query.answer(query.data)
-    data = query.data
-    product_documentId, done, count = data.split('&&&')
-    text = get_strapi_product_documentId(product_documentId)
-    keyboard = get_step_measure(1,2,3,product_documentId)
-    keyboard.append([InlineKeyboardButton('Корзина', callback_data='Корзина')])
-    keyboard.append([InlineKeyboardButton('Меню', callback_data='Меню')])
+    text = (f'Продукт 1\n'
+            f'-------\n'
+            f'\n'
+            f'Цена 150р / шт\n')
+    keyboard = [
+        [InlineKeyboardButton("Добавить 1 кг", callback_data='Добавить 1')],
+        [InlineKeyboardButton("Добавить 2 кг", callback_data='Добавить 2')],
+        [InlineKeyboardButton("Добавить 3 кг", callback_data='Добавить 3')],
+        [InlineKeyboardButton('Корзина', callback_data='Корзина')],
+        [InlineKeyboardButton('Меню', callback_data='Меню')]
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=query.message.chat_id, text=text, reply_markup=reply_markup)
+    context.bot.send_message(chat_id=query.message.chat_id, text=text,
+                             reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
     return 'Выбор после Продукта'
 
 def get_order(update, context):
@@ -160,21 +92,53 @@ def get_order(update, context):
     text = 'Оформляем заказ'
     context.bot.send_message(chat_id=query.message.chat_id, text=text)
 
+
+def headers():
+    load_dotenv()
+    strapi_token = os.getenv("STRAPI_TOKEN")
+    headers = {'Authorization': f'Bearer {strapi_token}'}
+    return headers
+
+def get_new_cart_id(tg_id):
+    tg_id_for_strapi = f'tg_id_{tg_id}'
+    data = {'data': {'tg_id': tg_id_for_strapi}}
+    post_cart_response = requests.post(f'http://localhost:1337/api/carts', headers=headers(), json=data)
+    json_cart = post_cart_response.json()
+    new_cart_id = json_cart['data']['documentId']
+    return new_cart_id
+
+
+def start(update, context):
+    text = 'Магазин'
+    tg_id = update.message.chat_id
+    new_cart_id = get_new_cart_id(tg_id)
+    callback_data_menu = get_callback_data(cart_id = new_cart_id, action = 'M')
+    callback_data_cart = get_callback_data(cart_id = new_cart_id, action = 'C')
+    keyboard = [[InlineKeyboardButton("Меню", callback_data=callback_data_menu)],
+                [ InlineKeyboardButton("Корзина", callback_data=callback_data_cart)]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(text= text, reply_markup=reply_markup)
+    return "Выбор после start"
+
+
+
 def choice_from_start(update, context):
     user_reply = update.callback_query.data
-
-    cart_id, product_id, action, count = user_reply.split('&&&')
-
-    if  action =='Меню':
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+    if  action =='M':
         return get_menu(update, context)
 
-    if action =='Корзина':
+    if action =='C':
         return get_cart(update, context)
 
 
 def choice_from_menu(update, context):
     user_reply = update.callback_query.data
-    if 'Продукт&&&' in user_reply:
+    if user_reply =='Продукт 1':
+        return get_product(update, context)
+
+    if user_reply =='Продукт 2':
         return get_product(update, context)
 
     if user_reply =='Корзина':
@@ -183,7 +147,13 @@ def choice_from_menu(update, context):
 
 def choice_from_product(update, context):
     user_reply = update.callback_query.data
-    if 'Добавить&&&' in user_reply:
+    if user_reply =='Добавить 1':
+        return get_product(update, context)
+
+    if user_reply =='Добавить 2':
+        return get_product(update, context)
+
+    if user_reply =='Добавить 3':
         return get_product(update, context)
 
     if user_reply =='Меню':
