@@ -37,13 +37,17 @@ def get_new_cart_document_id(tg_id):
     new_cart_document_id = json_cart['data']['documentId']
     return new_cart_document_id
 
-def get_strapi_products():
+def get_strapi_products(cart_id):
     response = requests.get(f'http://localhost:1337/api/products', headers=headers_())
     products = response.json()['data']
     keyboard = []
     for product in products:
         keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=f'{product['documentId']}&&&Продукт&&&Продукт'))
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=get_callback_data(cart_id=cart_id,
+                                                                                                     product_id = product['documentId'],
+                                                                                                     action='Продукт')))
+
+
         keyboard.append(keyboard_group)
     return keyboard
 
@@ -97,8 +101,10 @@ def get_menu(update, context):
     query = update.callback_query
     query.answer(query.data)
 
-    keyboard = get_strapi_products()
-    keyboard.append([InlineKeyboardButton('Корзина', callback_data='Корзина')])
+    cart_id, product_id, action, count = query.data.split('&&&')
+
+    keyboard = get_strapi_products(cart_id)
+    keyboard.append([InlineKeyboardButton('Корзина', callback_data=get_callback_data(cart_id=cart_id, action='Корзина'))])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
