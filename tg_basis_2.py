@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 _database = None
 
 def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', condition1='_', condition2='_'):
-    callback_data = f'tg_{cart_id}&{product_id}&{action}&{count}&{condition1}&{condition2}'
+    callback_data = f'{cart_id}&{product_id}&{action}&{count}&{condition1}&{condition2}'
     # callback_data = get_callback_data(cart_id, product_id , action, count, condition1, condition2)
     # cart_id, product_id , action, count, condition1, condition2 = get_callback_data(cart_id, product_id , action, count, condition1, condition2)
     return callback_data
@@ -55,26 +55,7 @@ def get_cart(update, context):
 
 
 
-def get_product(update, context):
-    query = update.callback_query
-    query.answer(query.data)
-    text = (f'Продукт 1\n'
-            f'-------\n'
-            f'\n'
-            f'Цена 150р / шт\n')
-    keyboard = [
-        [InlineKeyboardButton("Добавить 1 кг", callback_data='Добавить 1')],
-        [InlineKeyboardButton("Добавить 2 кг", callback_data='Добавить 2')],
-        [InlineKeyboardButton("Добавить 3 кг", callback_data='Добавить 3')],
-        [InlineKeyboardButton('Корзина', callback_data='Корзина')],
-        [InlineKeyboardButton('Меню', callback_data='Меню')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=query.message.chat_id, text=text,
-                             reply_markup=reply_markup)
-    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
-    return 'Выбор после Продукта'
 
 def get_order(update, context):
     query = update.callback_query
@@ -137,6 +118,7 @@ def get_products_keyboard(cart_id):
 
 def get_menu(update, context):
     query = update.callback_query
+    query.answer()
     user_reply = query.data
     cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
 
@@ -144,8 +126,8 @@ def get_menu(update, context):
 
     keyboard = get_products_keyboard(cart_id)
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=callback_data_cart)])
-
     reply_markup = InlineKeyboardMarkup(keyboard)
+
     context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
@@ -156,8 +138,59 @@ def choice_from_menu(update, context):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
 
+    if action == 'P':
+        return get_product(update, context)
+
     if action == 'C':
         return get_cart(update, context)
+
+
+
+def get_product(update, context):
+    query = update.callback_query
+    query.answer()
+    user_reply = query.data
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+
+    callback_data_menu = get_callback_data(cart_id=cart_id, action='M')
+    callback_data_cart = get_callback_data(cart_id=cart_id, action='C')
+
+    title, price , description, text = get_description_product(product_id)
+    keyboard = []
+
+    count_kg = [1,2,3]
+
+    for count in count_kg:
+        callback_data = get_callback_data(cart_id = cart_id, product_id = product_id , action = 'S', count = str(count))
+        print(callback_data)
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(f'Добавить {count} кг', callback_data=callback_data))
+        keyboard.append(keyboard_group)
+
+    keyboard.append([InlineKeyboardButton("Меню", callback_data=callback_data_menu)])
+    keyboard.append([InlineKeyboardButton("Корзина", callback_data=callback_data_cart)])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    context.bot.send_message(chat_id=query.message.chat_id, text=text,reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
+    return 'Выбор после Продукта'
+
+
+def get_description_product(product_documentId):
+    response = requests.get(f'http://localhost:1337/api/products/{product_documentId}', headers=headers())
+    product = response.json()
+    title = product['data']['title']
+    price = product['data']['price']
+    description = product['data']['description']
+    text = (f'{title}\n'
+            f'\n'
+            f'Цена {price}\n'
+            f'\n'
+            f'{description}\n')
+
+    return title, price , description, text
+
 
 
 def choice_from_product(update, context):
