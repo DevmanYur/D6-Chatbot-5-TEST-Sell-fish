@@ -71,7 +71,7 @@ def headers():
     return headers
 
 def get_new_cart_id(tg_id):
-    tg_id_for_strapi = f'tg_id_{tg_id}'
+    tg_id_for_strapi = f'vvvv_id_{tg_id}'
     data = {'data': {'tg_id': tg_id_for_strapi}}
     post_cart_response = requests.post(f'http://localhost:1337/api/carts', headers=headers(), json=data)
     json_cart = post_cart_response.json()
@@ -162,6 +162,12 @@ def get_product(update, context):
     if count != '_':
         print('есть')
         print(cart_id, product_id, action, count, condition1, condition2)
+
+        data = {'data': {'quantity': count,
+                         'product': product_id,
+                         'cart': cart_id
+                         }}
+        requests.post(f'http://localhost:1337/api/cartitems', headers=headers(), json=data)
 
 
     title, price , description, text = get_description_product(product_id)

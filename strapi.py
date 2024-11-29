@@ -173,6 +173,14 @@ populate[2]=yet-another-relation-name
 
 GET /api/articles?
 populate[category][populate][0]=restaurants
+
+cart_id = 't2ojovli96gdsak5sl9dv205' 
+
+product_id = 'zj4b4o2vs8dyk6k5xcl88dec'
+
+
+, action, count
+t2ojovli96gdsak5sl9dv205 zj4b4o2vs8dyk6k5xcl88dec S 2 _ _
 '''
 
 
@@ -288,8 +296,73 @@ def f8():
 
 
 
-f8()
+def f9():
+    load_dotenv()
+    strapi_tokenq = os.getenv("STRAPI_TOKEN")
+    headers = {'Authorization': f'Bearer {strapi_tokenq}'}
 
+    # data = {'data': {'quantity': quantity,
+    #                  'product': product,
+    #                  'cart': cart
+    #                  }}
+    # response0667 = requests.post(f'http://localhost:1337/api/cartitems', headers=headersq667, json=data)
+
+    cart_id = 't2ojovli96gdsak5sl9dv205'
+
+    product_id = 'zj4b4o2vs8dyk6k5xcl88dec'
+
+    # response = requests.get(f'http://localhost:1337/api/cartitems?filters[tg_id][$eq]={vremenno}',
+    #                            headers=headers)
+
+    response = requests.get(f'http://localhost:1337/api/cartitems?populate=*',headers=headers)
+    response = requests.get(f'http://localhost:1337/api/cartitems?populate=*'
+                            f'&'
+                            f'filters[cart][documentId][$eq]=ljpwh8c237ohammcj7uam7dg'
+                            f'&'
+                            f'filters[product][documentId][$eq]=ylokeva71vdpe8xxs57nxdnv', headers=headers)
+
+    json_ = response.json()
+
+    pprint(json_)
+    # print("Блок А")
+    # print("здесь что то есть")
+    # print('tg_id :', product['data'][0]['tg_id'])
+    # print('documentId :', product['data'][0]['documentId'])
+    #
+    # print("===========")
+    # documentId_ = product['data'][0]['documentId']
+
+f9()
+
+'''
+ljpwh8c237ohammcj7uam7dg zj4b4o2vs8dyk6k5xcl88dec S 2 _ _
+пусто
+ljpwh8c237ohammcj7uam7dg ylokeva71vdpe8xxs57nxdnv
+'''
+'''
+{'data': [{'cart': {'createdAt': '2024-11-21T13:29:51.740Z',
+                    'documentId': 'yyl0wssrpdz3oku2xidfnof9',
+                    'id': 2,
+                    'publishedAt': '2024-11-21T13:29:52.839Z',
+                    'tg_id': '1001',
+                    'updatedAt': '2024-11-21T13:29:52.823Z'},
+           'createdAt': '2024-11-21T13:30:39.847Z',
+           'documentId': 'ihudrhuxqbyo8z9rbeiw09ku',
+           'id': 2,
+           'product': {'createdAt': '2024-11-12T07:11:08.174Z',
+                       'description': 'Вес: 80-110 гр/штука Кол-во: 9-11 штук '
+                                      'в 1 кг.',
+                       'documentId': 'ylokeva71vdpe8xxs57nxdnv',
+                       'id': 8,
+                       'price': 3800,
+                       'publishedAt': '2024-11-12T07:11:08.189Z',
+                       'title': 'Живые раки (отборные)',
+                       'updatedAt': '2024-11-12T07:11:08.174Z'},
+           'publishedAt': '2024-11-21T13:30:40.987Z',
+           'quantity': 1,
+           'updatedAt': '2024-11-21T13:30:40.977Z'},
+
+'''
 import io
 from io import BytesIO
 from pprint import pprint
