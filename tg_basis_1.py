@@ -31,7 +31,7 @@ def get_strapi_products():
     keyboard = []
     for product in products:
         keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=f'Продукт&&&{product['documentId']}'))
+        keyboard_group.append(InlineKeyboardButton(product['title'], callback_data=f'{product['documentId']}&&&Продукт&&&Продукт'))
         keyboard.append(keyboard_group)
     return keyboard
 
@@ -55,7 +55,7 @@ def get_step_measure(first_step, second_step, third_step,  product_documentId):
     keyboard =[]
     for step in step_measure:
         keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(f'Добавить {step} кг', callback_data=f'Добавить&&&{step}&&&{product_documentId}'))
+        keyboard_group.append(InlineKeyboardButton(f'Добавить {step} кг', callback_data=f'{product_documentId}&&&Добавить&&&{step}'))
         keyboard.append(keyboard_group)
     return keyboard
 
@@ -111,14 +111,13 @@ def get_cart(update, context):
 
 def get_product(update, context):
     query = update.callback_query
-    query.answer()
+    query.answer(query.data)
     data = query.data
-    _ , product_documentId = data.split('&&&')
+    product_documentId, done, count = data.split('&&&')
     text = get_strapi_product_documentId(product_documentId)
-    keyboard = get_step_measure(5,15,25,product_documentId)
+    keyboard = get_step_measure(1,2,3,product_documentId)
     keyboard.append([InlineKeyboardButton('Корзина', callback_data='Корзина')])
     keyboard.append([InlineKeyboardButton('Меню', callback_data='Меню')])
-
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text=text, reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
@@ -151,13 +150,7 @@ def choice_from_menu(update, context):
 
 def choice_from_product(update, context):
     user_reply = update.callback_query.data
-    if user_reply =='Добавить 1':
-        return get_product(update, context)
-
-    if user_reply =='Добавить 2':
-        return get_product(update, context)
-
-    if user_reply =='Добавить 3':
+    if 'Добавить&&&' in user_reply:
         return get_product(update, context)
 
     if user_reply =='Меню':
