@@ -155,20 +155,28 @@ def get_product(update, context):
     user_reply = query.data
     cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
 
-    callback_data_menu = get_callback_data(cart_id=cart_id, action='M')
-    callback_data_cart = get_callback_data(cart_id=cart_id, action='C')
+    if count == '_':
+        print('пусто')
+        print(cart_id, product_id, action, count, condition1, condition2)
+
+    if count != '_':
+        print('есть')
+        print(cart_id, product_id, action, count, condition1, condition2)
+
 
     title, price , description, text = get_description_product(product_id)
-    keyboard = []
 
     count_kg = [1,2,3]
 
+    keyboard = []
     for count in count_kg:
         callback_data = get_callback_data(cart_id = cart_id, product_id = product_id , action = 'S', count = str(count))
-        print(callback_data)
         keyboard_group = []
         keyboard_group.append(InlineKeyboardButton(f'Добавить {count} кг', callback_data=callback_data))
         keyboard.append(keyboard_group)
+
+    callback_data_menu = get_callback_data(cart_id=cart_id, action='M')
+    callback_data_cart = get_callback_data(cart_id=cart_id, action='C')
 
     keyboard.append([InlineKeyboardButton("Меню", callback_data=callback_data_menu)])
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=callback_data_cart)])
@@ -198,20 +206,16 @@ def get_description_product(product_documentId):
 
 def choice_from_product(update, context):
     user_reply = update.callback_query.data
-    if user_reply =='Добавить 1':
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+    if action == 'S':
         return get_product(update, context)
 
-    if user_reply =='Добавить 2':
-        return get_product(update, context)
-
-    if user_reply =='Добавить 3':
-        return get_product(update, context)
-
-    if user_reply =='Меню':
+    if action == 'M':
         return get_menu(update, context)
 
-    if user_reply =='Корзина':
-        return  get_cart(update, context)
+    if action == 'C':
+        return get_cart(update, context)
+
 
 def choice_from_cart(update, context):
     data = update.callback_query.data
