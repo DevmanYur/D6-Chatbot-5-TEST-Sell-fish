@@ -39,14 +39,25 @@ def get_strapi_products():
 def get_strapi_product_documentId(product_documentId):
     response = requests.get(f'http://localhost:1337/api/products/{product_documentId}', headers=headers_())
     product = response.json()
-    pprint(product)
     title = product['data']['title']
     price = product['data']['price']
     description = product['data']['description']
+    text = (f'{title}\n'
+            f'\n'
+            f'Цена {price}\n'
+            f'\n'
+            f'{description}\n')
 
-    return title, price, description
+    return text
 
-
+def get_step_measure(first_step, second_step, third_step,  product_documentId):
+    step_measure = [first_step, second_step, third_step]
+    keyboard =[]
+    for step in step_measure:
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(f'Добавить {step} кг', callback_data=f'Добавить&&&{step}&&&{product_documentId}'))
+        keyboard.append(keyboard_group)
+    return keyboard
 
 def start(update, context):
     text = 'Магазин'
@@ -100,30 +111,16 @@ def get_cart(update, context):
 
 def get_product(update, context):
     query = update.callback_query
+    query.answer()
     data = query.data
-    _ggg , product_documentId = data.split('&&&')
+    _ , product_documentId = data.split('&&&')
+    text = get_strapi_product_documentId(product_documentId)
+    keyboard = get_step_measure(5,15,25,product_documentId)
+    keyboard.append([InlineKeyboardButton('Корзина', callback_data='Корзина')])
+    keyboard.append([InlineKeyboardButton('Меню', callback_data='Меню')])
 
-    print(_ggg)
-    print(product_documentId)
-
-    title, price, description = get_strapi_product_documentId(product_documentId)
-
-    query.answer(query.data)
-    text = (f'{title}\n'
-            f'\n'
-            f'Цена {price}\n'
-            f'\n'
-            f'{description}\n')
-    keyboard = [
-        [InlineKeyboardButton("Добавить 1 кг", callback_data='Добавить 1')],
-        [InlineKeyboardButton("Добавить 2 кг", callback_data='Добавить 2')],
-        [InlineKeyboardButton("Добавить 3 кг", callback_data='Добавить 3')],
-        [InlineKeyboardButton('Корзина', callback_data='Корзина')],
-        [InlineKeyboardButton('Меню', callback_data='Меню')]
-    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=query.message.chat_id, text=text,
-                             reply_markup=reply_markup)
+    context.bot.send_message(chat_id=query.message.chat_id, text=text, reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
     return 'Выбор после Продукта'
