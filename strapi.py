@@ -315,15 +315,17 @@ def f9():
     #                            headers=headers)
 
     response = requests.get(f'http://localhost:1337/api/cartitems?populate=*',headers=headers)
-    response = requests.get(f'http://localhost:1337/api/cartitems?populate=*'
+    response = requests.get(f'http://localhost:1337/api/cartitems?'
+                            f'populate=*'
+                            f''
                             f'&'
                             f'filters[cart][documentId][$eq]=ljpwh8c237ohammcj7uam7dg'
                             f'&'
-                            f'filters[product][documentId][$eq]=ylokeva71vdpe8xxs57nxdnv', headers=headers)
+                            f'filters[product][documentId][$eq]=zj4b4o2vs8dyk6k5xcl88dec', headers=headers)
 
     json_ = response.json()
 
-    pprint(json_)
+    pprint(json_['data'][-1])
     # print("Блок А")
     # print("здесь что то есть")
     # print('tg_id :', product['data'][0]['tg_id'])
