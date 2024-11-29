@@ -86,10 +86,8 @@ def start(update, context):
     text = 'Магазин'
     tg_id = update.message.chat_id
     cart_id = get_new_cart_document_id(tg_id)
-    callback_data_menu = get_callback_data(cart_id=cart_id, action='Меню')
-    callback_data_cart = get_callback_data(cart_id=cart_id, action='Корзина')
-    keyboard = [[InlineKeyboardButton("Меню", callback_data=callback_data_menu)],
-                [ InlineKeyboardButton("Корзина", callback_data=callback_data_cart)],]
+    keyboard = [[InlineKeyboardButton("Меню", callback_data=get_callback_data(cart_id=cart_id, action='Меню'))],
+                [ InlineKeyboardButton("Корзина", callback_data=get_callback_data(cart_id=cart_id, action='Корзина'))],]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(text= text, reply_markup=reply_markup)
     return "Выбор после start"
