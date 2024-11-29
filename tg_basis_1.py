@@ -50,6 +50,17 @@ def get_strapi_product_documentId(product_documentId):
 
     return text
 
+
+def get_new_cart_document_id(tg_id):
+    tg_id_for_strapi = f'tg_id_{tg_id}'
+    data = {'data': {'tg_id': tg_id_for_strapi}}
+    post_cart_response = requests.post(f'http://localhost:1337/api/carts', headers=headers_(), json=data)
+    json_cart = post_cart_response.json()
+    new_cart_document_id = json_cart['data']['documentId']
+    return new_cart_document_id
+
+
+
 def get_step_measure(first_step, second_step, third_step,  product_documentId):
     step_measure = [first_step, second_step, third_step]
     keyboard =[]
@@ -121,7 +132,6 @@ def get_product(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text=text, reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-
     return 'Выбор после Продукта'
 
 def get_order(update, context):
@@ -132,6 +142,7 @@ def get_order(update, context):
 
 def choice_from_start(update, context):
     user_reply = update.callback_query.data
+
     if  user_reply =='Меню':
         return get_menu(update, context)
 

@@ -123,7 +123,7 @@ def handle_menu(update, context):
         carts_response = requests.get(f'http://localhost:1337/api/carts?filters[tg_id][$eq]={tg_id_for_strapi}',
                                    headers=headers_())
         carts = carts_response.json()
-
+        product_, quantity_ = h_d_data.split('&')
         if carts['data']:
             cart = carts['data'][0]['documentId']
             post_cartitems(cart, product_, quantity_)
