@@ -25,17 +25,7 @@ def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', condi
 
 
 
-def get_menu(update, context):
-    query = update.callback_query
-    query.answer(query.data)
-    keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1')],
-                [InlineKeyboardButton('Продукт 2', callback_data='Продукт 2')],
-                [InlineKeyboardButton('Корзина', callback_data='Корзина')]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
-    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
-    return 'Выбор после Меню'
 
 
 def get_cart(update, context):
@@ -133,16 +123,30 @@ def choice_from_start(update, context):
         return get_cart(update, context)
 
 
+def get_menu(update, context):
+    query = update.callback_query
+    user_reply = query.data
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+
+    callback_data_cart = get_callback_data(cart_id=cart_id, action='C')
+
+
+    keyboard = [[InlineKeyboardButton('Продукт 1', callback_data='Продукт 1')],
+                [InlineKeyboardButton('Продукт 2', callback_data='Продукт 2')],
+                [InlineKeyboardButton('Корзина', callback_data=callback_data_cart)]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
+    return 'Выбор после Меню'
+
+
 def choice_from_menu(update, context):
     user_reply = update.callback_query.data
-    if user_reply =='Продукт 1':
-        return get_product(update, context)
-
-    if user_reply =='Продукт 2':
-        return get_product(update, context)
-
-    if user_reply =='Корзина':
-        return  get_cart(update, context)
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+    
+    if action == 'C':
+        return get_cart(update, context)
 
 
 def choice_from_product(update, context):
