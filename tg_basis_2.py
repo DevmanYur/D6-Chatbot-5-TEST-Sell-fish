@@ -160,14 +160,22 @@ def get_cartitem(cart_id, product_id, count):
                             f'filters[product][documentId][$eq]={product_id}', headers=headers())
 
     cartitem = response.json()
-    # one_cartitem=cartitem['data'][-1]['documentId']
-    # print('one_cartitem', one_cartitem)
 
-    data = {'data': {'quantity': count,
-                     'product': product_id,
-                     'cart': cart_id
-                     }}
-    requests.post(f'http://localhost:1337/api/cartitems', headers=headers(), json=data)
+
+    if cartitem['data'] ==[]:
+        print("Пусто")
+        data = {'data': {'quantity': count,
+                         'product': product_id,
+                         'cart': cart_id
+                         }}
+        requests.post(f'http://localhost:1337/api/cartitems', headers=headers(), json=data)
+
+    if cartitem['data'] != []:
+        one_cartitem=cartitem['data'][0]
+        print('one_cartitem', one_cartitem)
+        print(cartitem['data'][0]['documentId'])
+
+
 
 
 
