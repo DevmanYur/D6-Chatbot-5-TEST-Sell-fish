@@ -152,30 +152,42 @@ def choice_from_menu(update, context):
 
 def get_cartitem(cart_id, product_id, count):
     response = requests.get(f'http://localhost:1337/api/cartitems?'
-                            f'populate=*'
-                            f''
-                            f'&'
                             f'filters[cart][documentId][$eq]={cart_id}'
                             f'&'
                             f'filters[product][documentId][$eq]={product_id}', headers=headers())
 
     cartitem = response.json()
-
-
     if cartitem['data'] ==[]:
-        print("Пусто")
         data = {'data': {'quantity': count,
                          'product': product_id,
                          'cart': cart_id
-                         }}
+                         }
+                }
         requests.post(f'http://localhost:1337/api/cartitems', headers=headers(), json=data)
 
+
     if cartitem['data'] != []:
-        one_cartitem=cartitem['data'][0]
-        print('one_cartitem', one_cartitem)
-        print(cartitem['data'][0]['documentId'])
+        cartitem_doc_id = cartitem['data'][0]['documentId']
+        before_quantity = cartitem['data'][0]['quantity']
+        after_quantity = int(before_quantity) + int(count)
+        data = {'data': {'quantity': after_quantity
+                         }
+                }
+        requests.put(f'http://localhost:1337/api/cartitems/{cartitem_doc_id}', headers=headers(), json=data)
 
 
+def get_count_now(cart_id, product_id):
+    response = requests.get(f'http://localhost:1337/api/cartitems?'
+                            f'filters[cart][documentId][$eq]={cart_id}'
+                            f'&'
+                            f'filters[product][documentId][$eq]={product_id}', headers=headers())
+
+    cartitem = response.json()
+    if cartitem['data'] == []:
+        return 0
+    if cartitem['data'] != []:
+        quantity = cartitem['data'][0]['quantity']
+        return quantity
 
 
 
@@ -194,9 +206,7 @@ def get_product(update, context):
 
 
 
-
-
-    title, price , description, text = get_description_product(product_id)
+    title, price , description, text, count_now = get_description_product(product_id, cart_id, product_id)
 
     count_kg = [1,2,3]
 
@@ -220,19 +230,25 @@ def get_product(update, context):
     return 'Выбор после Продукта'
 
 
-def get_description_product(product_documentId):
+def get_description_product(product_documentId, cart_id, product_id):
     response = requests.get(f'http://localhost:1337/api/products/{product_documentId}', headers=headers())
     product = response.json()
     title = product['data']['title']
     price = product['data']['price']
     description = product['data']['description']
+
+    count_now = get_count_now(cart_id, product_id)
+
+
     text = (f'{title}\n'
             f'\n'
             f'Цена {price}\n'
             f'\n'
-            f'{description}\n')
+            f'{description}\n'
+            f'\n'
+            f'В корзине {count_now} кг')
 
-    return title, price , description, text
+    return title, price , description, text, count_now
 
 
 
