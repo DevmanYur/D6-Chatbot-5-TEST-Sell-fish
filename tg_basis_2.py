@@ -5,6 +5,8 @@ redis==3.2.1
 """
 import os
 import logging
+from pprint import pprint
+
 import redis
 import requests
 from dotenv import load_dotenv
@@ -147,13 +149,29 @@ def choice_from_menu(update, context):
     if action == 'C':
         return get_cart(update, context)
 
+def get_cartitem(cart_id, product_id):
+    response = requests.get(f'http://localhost:1337/api/cartitems?'
+                            f'populate=*'
+                            f''
+                            f'&'
+                            f'filters[cart][documentId][$eq]={cart_id}'
+                            f'&'
+                            f'filters[product][documentId][$eq]={product_id}', headers=headers())
 
+    cartitem = response.json()
+
+    pprint(cartitem['data'][-1])
+    pprint(cartitem['data'][-1]['documentId'])
+    cartitem_documentId = cartitem['data'][-1]['documentId']
+    print(cartitem_documentId)
 
 def get_product(update, context):
     query = update.callback_query
     query.answer()
     user_reply = query.data
     cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+
+    
 
     if count == '_':
         print('пусто')

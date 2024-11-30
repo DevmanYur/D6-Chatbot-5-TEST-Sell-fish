@@ -323,9 +323,13 @@ def f9():
                             f'&'
                             f'filters[product][documentId][$eq]=zj4b4o2vs8dyk6k5xcl88dec', headers=headers)
 
-    json_ = response.json()
+    cartitem = response.json()
 
-    pprint(json_['data'][-1])
+    pprint(cartitem['data'][-1])
+    pprint(cartitem['data'][-1]['documentId'])
+    cartitem_documentId = cartitem['data'][-1]['documentId']
+    print(cartitem_documentId)
+
     # print("Блок А")
     # print("здесь что то есть")
     # print('tg_id :', product['data'][0]['tg_id'])
