@@ -301,42 +301,35 @@ def f9():
     strapi_tokenq = os.getenv("STRAPI_TOKEN")
     headers = {'Authorization': f'Bearer {strapi_tokenq}'}
 
-    # data = {'data': {'quantity': quantity,
-    #                  'product': product,
-    #                  'cart': cart
-    #                  }}
-    # response0667 = requests.post(f'http://localhost:1337/api/cartitems', headers=headersq667, json=data)
-
-    cart_id = 't2ojovli96gdsak5sl9dv205'
+    cart_id = 'ljpwh8c237ohammcj7uam7dg'
 
     product_id = 'zj4b4o2vs8dyk6k5xcl88dec'
 
-    # response = requests.get(f'http://localhost:1337/api/cartitems?filters[tg_id][$eq]={vremenno}',
-    #                            headers=headers)
 
-    response = requests.get(f'http://localhost:1337/api/cartitems?populate=*',headers=headers)
+
     response = requests.get(f'http://localhost:1337/api/cartitems?'
                             f'populate=*'
                             f''
                             f'&'
-                            f'filters[cart][documentId][$eq]=ljpwh8c237ohammcj7uam7dg'
+                            f'filters[cart][documentId][$eq]={cart_id}'
                             f'&'
-                            f'filters[product][documentId][$eq]=zj4b4o2vs8dyk6k5xcl88dec', headers=headers)
+                            f'filters[product][documentId][$eq]={product_id}', headers=headers)
 
     cartitem = response.json()
 
-    pprint(cartitem['data'][-1])
-    pprint(cartitem['data'][-1]['documentId'])
-    cartitem_documentId = cartitem['data'][-1]['documentId']
-    print(cartitem_documentId)
+    if cartitem['data'] == [] :
+        print("Не нашел")
+        print(cartitem['data'])
+    if cartitem['data'] != []:
+        print("Нашел")
+        pprint(cartitem['data'][-1])
 
-    # print("Блок А")
-    # print("здесь что то есть")
-    # print('tg_id :', product['data'][0]['tg_id'])
-    # print('documentId :', product['data'][0]['documentId'])
-    #
-    # print("===========")
-    # documentId_ = product['data'][0]['documentId']
+    # pprint(cartitem['data'])
+    # pprint(cartitem['data'][0]['documentId'])
+    # cartitem_documentId = cartitem['data'][0]['documentId']
+    # print(cartitem_documentId)
+
+
 
 f9()
 

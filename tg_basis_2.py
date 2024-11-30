@@ -149,7 +149,8 @@ def choice_from_menu(update, context):
     if action == 'C':
         return get_cart(update, context)
 
-def get_cartitem(cart_id, product_id):
+
+def get_cartitem(cart_id, product_id, count):
     response = requests.get(f'http://localhost:1337/api/cartitems?'
                             f'populate=*'
                             f''
@@ -159,11 +160,16 @@ def get_cartitem(cart_id, product_id):
                             f'filters[product][documentId][$eq]={product_id}', headers=headers())
 
     cartitem = response.json()
+    # one_cartitem=cartitem['data'][-1]['documentId']
+    # print('one_cartitem', one_cartitem)
 
-    pprint(cartitem['data'][-1])
-    pprint(cartitem['data'][-1]['documentId'])
-    cartitem_documentId = cartitem['data'][-1]['documentId']
-    print(cartitem_documentId)
+    data = {'data': {'quantity': count,
+                     'product': product_id,
+                     'cart': cart_id
+                     }}
+    requests.post(f'http://localhost:1337/api/cartitems', headers=headers(), json=data)
+
+
 
 def get_product(update, context):
     query = update.callback_query
@@ -171,21 +177,15 @@ def get_product(update, context):
     user_reply = query.data
     cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
 
-    
+    print( cart_id, product_id, action, count, condition1, condition2)
 
-    if count == '_':
-        print('пусто')
-        print(cart_id, product_id, action, count, condition1, condition2)
 
-    if count != '_':
-        print('есть')
-        print(cart_id, product_id, action, count, condition1, condition2)
 
-        data = {'data': {'quantity': count,
-                         'product': product_id,
-                         'cart': cart_id
-                         }}
-        requests.post(f'http://localhost:1337/api/cartitems', headers=headers(), json=data)
+    if action == 'S':
+        get_cartitem(cart_id, product_id, count)
+
+
+
 
 
     title, price , description, text = get_description_product(product_id)
