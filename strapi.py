@@ -231,36 +231,28 @@ def post_cartitems(cart, product, quantity):
 
 def f8():
 
-
     load_dotenv()
-    telegram_token = os.environ['TELEGRAM_TOKEN']
-    tg_bot = telegram.Bot(token=telegram_token)
-    chat_id = tg_bot.get_updates()[0].message.from_user.id
-
-
-
 
     strapi_tokenq = os.getenv("STRAPI_TOKEN")
     headers = {'Authorization': f'Bearer {strapi_tokenq}'}
 
-    vremenno = '1001'
-    carts_filters_response = requests.get(
-        f'http://localhost:1337/api/carts?filters[tg_id][$eq]={vremenno}',
-        headers=headers)
-    carts_filters = carts_filters_response.json()
-    posledniy_element = carts_filters['data'][-1]['documentId']
+    cart_id = 'iezhajtnx24ckph2y74y5xxo'
 
+    response = requests.get(
+        f'http://localhost:1337/api/carts/{cart_id}?populate[cartitems][populate][0]=product',headers=headers)
 
-    posledniy_element_response = requests.get(
-        f'http://localhost:1337/api/carts/{posledniy_element}?populate[cartitems][populate][0]=product',
-        headers=headers)
-
-    podrobnee_o_obekte = posledniy_element_response.json()
+    cartitems = response.json()
     total = 0
-    head_text = (f'Моя карзина:\n'
+    head_text = (f'Моя корзина:\n'
                  f'-----------\n\n')
     body_text =''
-    for cartitem in podrobnee_o_obekte['data']['cartitems']:
+
+    footer_text = (f'-----------\n\n'
+                   f'Итого {total}')
+
+
+    for cartitem in cartitems['data']['cartitems']:
+        print(cartitem['documentId'])
         title = cartitem['product']['title']
         price = cartitem['product']['price']
         quantity = cartitem['quantity']
@@ -271,17 +263,18 @@ def f8():
                  f'Кол-во: {quantity}\n'
                  f'Подитог: {pre_total}\n\n')
         body_text = body_text + text_product
-    footer_text = (f'-----------\n\n'
-                   f'Итого {total}')
+
     text = head_text + body_text + footer_text
 
-
-    tg_bot.send_message(chat_id=chat_id, text=text)
-    # bot.send_message(ид_получателя, data, parse_mode='HTML')
+    pprint( text )
 
 
 
 
+
+
+
+f8()
 
 
 
@@ -331,7 +324,7 @@ def f9():
 
 
 
-f9()
+
 
 '''
 ljpwh8c237ohammcj7uam7dg zj4b4o2vs8dyk6k5xcl88dec S 2 _ _

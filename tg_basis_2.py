@@ -26,31 +26,62 @@ def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', condi
     return callback_data
 
 
+def get_description_cart(cart_id):
+    response = requests.get(
+        f'http://localhost:1337/api/carts/{cart_id}?populate[cartitems][populate][0]=product', headers=headers())
+
+    cartitems = response.json()
+    total = 0
+    head_text = (f'Моя корзина:\n'
+                 f'-----------\n\n')
+    body_text = ''
+
+    cartitems_keyboard = []
+
+    for cartitem in cartitems['data']['cartitems']:
+        cartitem_id = cartitem['documentId']
 
 
+        title = cartitem['product']['title']
+        price = cartitem['product']['price']
+        quantity = cartitem['quantity']
+        pre_total = price * quantity
+        total = total + pre_total
+        text_product = (f'● {title}\n'
+                        f'Цена за кг: {price}\n'
+                        f'Кол-во: {quantity}\n'
+                        f'Подитог: {pre_total}\n\n')
+        body_text = body_text + text_product
 
+        callback_data = get_callback_data(cart_id=cart_id, action='Ci', condition1=cartitem_id)
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(f'Удалить {title}', callback_data=callback_data))
+        cartitems_keyboard.append(keyboard_group)
+
+    footer_text = (f'-----------\n\n'
+                   f'Итого {total}')
+
+    description_cart = head_text + body_text + footer_text
+    return description_cart, cartitems_keyboard
 
 def get_cart(update, context):
     query = update.callback_query
-    query.answer(query.data)
-    text = (f'Корзина\n'
-            f'-------\n'
-            f'\n'
-            f'Продукт 1\n'
-            f'Продукт 2\n'
-            f'\n'
-            f'-------\n'
-            f'Итого 1 000р.')
+    query.answer()
+    user_reply = query.data
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
 
-    keyboard = [
-        [InlineKeyboardButton('Удалить продукт 1', callback_data='Удалить продукт 1')],
-        [InlineKeyboardButton('Удалить продукт 2', callback_data='Удалить продукт 2')],
-        [InlineKeyboardButton('Меню', callback_data='Меню')],
-        [InlineKeyboardButton('Оформить заказ', callback_data='Оформить заказ')]
-    ]
+    print(cart_id, product_id, action, count, condition1, condition2)
+    description_cart, keyboard = get_description_cart(cart_id)
+
+    callback_data_menu = get_callback_data(cart_id=cart_id, action='M')
+    callback_data_cart = get_callback_data(cart_id=cart_id, action='C')
+    keyboard.append([InlineKeyboardButton("Меню", callback_data=callback_data_menu)])
+    keyboard.append([InlineKeyboardButton('Оформить заказ', callback_data='Оформить заказ')])
+
+
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    context.bot.send_message(chat_id=query.message.chat_id, text=text,reply_markup=reply_markup)
+    context.bot.send_message(chat_id=query.message.chat_id, text=description_cart,reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
     return 'Выбор после Корзины'
@@ -206,7 +237,8 @@ def get_product(update, context):
 
 
 
-    title, price , description, text, count_now = get_description_product(product_id, cart_id, product_id)
+    title, price , description, text = get_description_product(product_id, cart_id, product_id)
+    # title, price, description, text, count_now = get_description_product(product_id, cart_id, product_id)
 
     count_kg = [1,2,3]
 
@@ -237,7 +269,7 @@ def get_description_product(product_documentId, cart_id, product_id):
     price = product['data']['price']
     description = product['data']['description']
 
-    count_now = get_count_now(cart_id, product_id)
+    # count_now = get_count_now(cart_id, product_id)
 
 
     text = (f'{title}\n'
@@ -245,10 +277,10 @@ def get_description_product(product_documentId, cart_id, product_id):
             f'Цена {price}\n'
             f'\n'
             f'{description}\n'
-            f'\n'
-            f'В корзине {count_now} кг')
+            f'\n')
+            # f'В корзине {count_now} кг')
 
-    return title, price , description, text, count_now
+    return title, price , description, text
 
 
 
