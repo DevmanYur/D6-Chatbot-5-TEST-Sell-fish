@@ -125,6 +125,17 @@ def get_order(update, context):
     return "Выбор после e-mail"
 
 
+def choice_from_email(update, context):
+    text = 'Введите телефон'
+    update.message.reply_text(text=text)
+    return "Выбор после телефона"
+
+
+def end_finish(update, context):
+    text = 'Заказ оформлен'
+    update.message.reply_text(text=text)
+    return start(update, context)
+
 def headers():
     load_dotenv()
     strapi_token = os.getenv("STRAPI_TOKEN")
@@ -328,7 +339,6 @@ def choice_from_product(update, context):
 
 
 
-
 def handle_users_reply(update, context):
     db = get_database_connection()
     if update.message:
@@ -350,7 +360,9 @@ def handle_users_reply(update, context):
         'Выбор после Меню': choice_from_menu,
         'Выбор после Корзины': choice_from_cart,
         'Выбор после Продукта' : choice_from_product,
-        "Выбор после e-mail" : choice_from_start
+        "Выбор после e-mail" : choice_from_email,
+        "Выбор после телефона" : end_finish
+
     }
     state_handler = states_functions[user_state]
     try:
