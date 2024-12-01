@@ -64,11 +64,21 @@ def get_description_cart(cart_id):
     description_cart = head_text + body_text + footer_text
     return description_cart, cartitems_keyboard
 
+def delite_cartitem(condition1):
+    requests.delete(
+        f'http://localhost:1337/api/cartitems/{condition1}', headers=headers())
+
+
+
 def get_cart(update, context):
     query = update.callback_query
     query.answer()
     user_reply = query.data
     cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+
+
+    if action == 'Ci':
+        delite_cartitem(condition1)
 
     print(cart_id, product_id, action, count, condition1, condition2)
     description_cart, keyboard = get_description_cart(cart_id)
