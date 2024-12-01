@@ -74,7 +74,6 @@ def get_cart(update, context):
     description_cart, keyboard = get_description_cart(cart_id)
 
     callback_data_menu = get_callback_data(cart_id=cart_id, action='M')
-    callback_data_cart = get_callback_data(cart_id=cart_id, action='C')
     keyboard.append([InlineKeyboardButton("Меню", callback_data=callback_data_menu)])
     keyboard.append([InlineKeyboardButton('Оформить заказ', callback_data='Оформить заказ')])
 
@@ -86,7 +85,18 @@ def get_cart(update, context):
 
     return 'Выбор после Корзины'
 
+def choice_from_cart(update, context):
+    user_reply = update.callback_query.data
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
 
+    if action =='Ci':
+        return get_cart(update, context)
+
+    if action =='M':
+        return get_menu(update, context)
+
+    if action =='Оформить заказ':
+        return  get_order(update, context)
 
 
 
@@ -297,19 +307,7 @@ def choice_from_product(update, context):
         return get_cart(update, context)
 
 
-def choice_from_cart(update, context):
-    data = update.callback_query.data
-    if data =='Удалить продукт 1':
-        return get_cart(update, context)
 
-    if data =='Удалить продукт 2':
-        return get_cart(update, context)
-
-    if data =='Меню':
-        return get_menu(update, context)
-
-    if data =='Оформить заказ':
-        return  get_order(update, context)
 
 
 
