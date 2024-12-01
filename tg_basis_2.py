@@ -21,8 +21,6 @@ _database = None
 
 def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', condition1='_', condition2='_'):
     callback_data = f'{cart_id}&{product_id}&{action}&{count}&{condition1}&{condition2}'
-    # callback_data = get_callback_data(cart_id, product_id , action, count, condition1, condition2)
-    # cart_id, product_id , action, count, condition1, condition2 = get_callback_data(cart_id, product_id , action, count, condition1, condition2)
     return callback_data
 
 
@@ -81,11 +79,13 @@ def get_cart(update, context):
         delite_cartitem(condition1)
 
     print(cart_id, product_id, action, count, condition1, condition2)
+
     description_cart, keyboard = get_description_cart(cart_id)
 
     callback_data_menu = get_callback_data(cart_id=cart_id, action='M')
+    callback_data_order = get_callback_data(cart_id=cart_id, action='Or')
     keyboard.append([InlineKeyboardButton("Меню", callback_data=callback_data_menu)])
-    keyboard.append([InlineKeyboardButton('Оформить заказ', callback_data='Оформить заказ')])
+    keyboard.append([InlineKeyboardButton('Оформить заказ', callback_data=callback_data_order)])
 
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -105,16 +105,24 @@ def choice_from_cart(update, context):
     if action =='M':
         return get_menu(update, context)
 
-    if action =='Оформить заказ':
+    if action =='Or':
         return  get_order(update, context)
 
 
 
 def get_order(update, context):
     query = update.callback_query
-    query.answer(query.data)
-    text = 'Оформляем заказ'
+    query.answer("Пришлите, пожалуйста, ваш e-mail")
+    user_reply = query.data
+    cart_id, product_id, action, count, condition1, condition2 = user_reply.split('&')
+
+    print(user_reply)
+
+
+
+    text = 'Пришлите, пожалуйста, ваш e-mail'
     context.bot.send_message(chat_id=query.message.chat_id, text=text)
+    return "Выбор после e-mail"
 
 
 def headers():
@@ -341,7 +349,8 @@ def handle_users_reply(update, context):
         'Выбор после start': choice_from_start,
         'Выбор после Меню': choice_from_menu,
         'Выбор после Корзины': choice_from_cart,
-        'Выбор после Продукта' : choice_from_product
+        'Выбор после Продукта' : choice_from_product,
+        "Выбор после e-mail" : choice_from_start
     }
     state_handler = states_functions[user_state]
     try:
